@@ -1,11 +1,10 @@
 # AI-Powered Fashion E-Commerce Platform
 
-A full-stack multi-vendor fashion marketplace built with **ASP.NET Core** and **Angular**. The platform enables sellers to manage products and customers to browse, purchase, and track orders.
+A full-stack  fashion marketplace built with **ASP.NET Core** and **Angular**.
 
 ## ✨ Features
 
-- Multi-vendor marketplace
-- Customer & Seller authentication
+- Customer authentication
 - Product, Category, and Inventory Management
 - Shopping Cart & Order Management
 - AI Stylist for personalized outfit recommendations
