@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ShopService } from '../../../core/services/shop.service';
-import {MatDivider} from '@angular/material/divider';
-import {MatListOption, MatSelectionList} from '@angular/material/list';
+import { MatDivider } from '@angular/material/divider';
+import { MatListOption, MatSelectionList } from '@angular/material/list';
 import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
@@ -24,12 +24,18 @@ export class FiltersDialogComponent {
   shopService = inject(ShopService);
 
   selectedBrands: string[] = this.data.selectedBrands;
-  selectedTypes: string[] = this.data.selectedTypes;
+  selectedCategories: string[] = this.data.selectedCategories;
+  selectedGenders: string[] = this.data.selectedGenders;
+  selectedColors: string[] = this.data.selectedColors;
+  selectedSeasons: string[] = this.data.selectedSeasons;
 
   applyFilters() {
     this.dialogRef.close({
       selectedBrands: this.selectedBrands,
-      selectedTypes: this.selectedTypes
+      selectedCategories: this.selectedCategories,
+      selectedGenders: this.selectedGenders,
+      selectedColors: this.selectedColors,
+      selectedSeasons: this.selectedSeasons,
     });
   }
 }

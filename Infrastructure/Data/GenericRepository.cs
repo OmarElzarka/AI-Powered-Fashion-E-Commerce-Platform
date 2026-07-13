@@ -17,7 +17,7 @@ public class GenericRepository<T>(StoreContext context) : IGenericRepository<T> 
         return await context.Set<T>().ToListAsync();
     }
 
-    public void Add(T entity)
+    public void Add(T entity) 
     {
         context.Set<T>().Add(entity);
     }

@@ -1,18 +1,143 @@
-<div class="max-w-screen-2xl mx-auto px-4 mt-32">
-    <div class="flex flex-col items-center py-16 justify-center mt-20 rounded-2xl 
-        shadow-xl relative">
-        <img class="absolute inset-0 w-full h-full object-cover rounded-2xl"
-            src="../images/hero1.jpg" alt="ski resort image">
-        <div class="flex flex-col p-8 rounded-2xl items-center relative">
-            <h1 class="my-6 font-extrabold text-white text-6xl">
-                Welcome to SkiNet!
-            </h1>
-            <button class="bg-gradient-to-r from-blue-600 to-cyan-500 font-semibold 
-                    text-2xl text-white 
-                    rounded-2xl px-8 py-4 border-2 border-transparent mt-8"
-                routerLink="/shop">
-                Go to shop
-            </button>
-        </div>
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-subtitle">AI-POWERED FASHION PLATFORM</p>
+    <h1 class="hero-title">Discover Your <span class="gold-accent">Perfect Style</span></h1>
+    <p class="hero-desc">Intelligent recommendations. Curated collections. Personalized for you.</p>
+    <div class="hero-actions">
+      <a routerLink="/shop" class="btn-primary">Explore Collection</a>
+      <a routerLink="/shop" [queryParams]="{isNewArrival: true}" class="btn-outline">New Arrivals</a>
     </div>
-</div>
+  </div>
+</section>
+
+<!-- Categories -->
+<section class="section categories-section">
+  <div class="container-main">
+    <p class="section-subtitle">Browse By</p>
+    <h2 class="section-title">Categories</h2>
+    <div class="categories-grid">
+      @for (cat of categories; track cat.name) {
+        <a routerLink="/shop" [queryParams]="cat.query" class="category-card">
+          <mat-icon class="category-icon">{{cat.icon}}</mat-icon>
+          <span class="category-name">{{cat.name}}</span>
+        </a>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Trending Products -->
+@if (trendingProducts.length > 0) {
+<section class="section">
+  <div class="container-main">
+    <p class="section-subtitle">What's Hot</p>
+    <h2 class="section-title">Trending Now</h2>
+    <div class="products-grid">
+      @for (product of trendingProducts; track product.id) {
+        <a routerLink="/shop/{{product.id}}" class="product-card-home">
+          <div class="product-image-wrapper">
+            <img [src]="product.imageUrl" [alt]="product.name" loading="lazy">
+            @if (product.discountPercentage > 0) {
+              <span class="discount-badge">-{{product.discountPercentage}}%</span>
+            }
+            @if (product.isNewArrival) {
+              <span class="new-badge">NEW</span>
+            }
+          </div>
+          <div class="product-info">
+            <p class="product-brand">{{product.brand}}</p>
+            <p class="product-name">{{product.name}}</p>
+            <div class="product-price">
+              @if (product.discountPercentage > 0) {
+                <span class="price-original">{{product.price | currency}}</span>
+                <span class="price-sale">{{product.discountedPrice | currency}}</span>
+              } @else {
+                <span class="price-current">{{product.price | currency}}</span>
+              }
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+    <div class="section-action">
+      <a routerLink="/shop" class="btn-text">View All Products <mat-icon>arrow_forward</mat-icon></a>
+    </div>
+  </div>
+</section>
+}
+
+<!-- AI Stylist Banner -->
+<section class="ai-banner">
+  <div class="container-main">
+    <div class="ai-banner-content">
+      <div class="ai-banner-text">
+        <span class="ai-badge">
+          <mat-icon>auto_awesome</mat-icon> AI-POWERED
+        </span>
+        <h2>Meet Your Personal <br><span class="gold-accent">AI Stylist</span></h2>
+        <p>Get outfit recommendations, color matching, and style advice powered by artificial intelligence. Coming soon.</p>
+        <button mat-flat-button class="ai-btn" disabled>Coming Soon</button>
+      </div>
+      <div class="ai-banner-visual">
+        <div class="ai-orb"></div>
+        <div class="ai-orb ai-orb-2"></div>
+        <mat-icon class="ai-icon-large">psychology</mat-icon>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- New Arrivals -->
+@if (newArrivals.length > 0) {
+<section class="section">
+  <div class="container-main">
+    <p class="section-subtitle">Just Landed</p>
+    <h2 class="section-title">New Arrivals</h2>
+    <div class="products-grid">
+      @for (product of newArrivals; track product.id) {
+        <a routerLink="/shop/{{product.id}}" class="product-card-home">
+          <div class="product-image-wrapper">
+            <img [src]="product.imageUrl" [alt]="product.name" loading="lazy">
+            <span class="new-badge">NEW</span>
+          </div>
+          <div class="product-info">
+            <p class="product-brand">{{product.brand}}</p>
+            <p class="product-name">{{product.name}}</p>
+            <div class="product-price">
+              <span class="price-current">{{product.price | currency}}</span>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+</section>
+}
+
+<!-- Seasons -->
+<section class="section">
+  <div class="container-main">
+    <p class="section-subtitle">Shop By</p>
+    <h2 class="section-title">Season</h2>
+    <div class="seasons-grid">
+      @for (season of seasons; track season.name) {
+        <a routerLink="/shop" [queryParams]="{seasons: season.name}"
+            class="season-card" [style.background]="season.color" [style.color]="season.textColor">
+          <span class="season-name">{{season.name}}</span>
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- AI Shopping Assistant Banner -->
+<section class="ai-assistant-banner">
+  <div class="container-main">
+    <mat-icon class="assistant-icon">smart_toy</mat-icon>
+    <h2>AI Shopping Assistant</h2>
+    <p>Find products, compare options, and get personalized recommendations through natural conversation.</p>
+    <button mat-stroked-button disabled style="color:white;border-color:rgba(255,255,255,0.3)">Coming Soon</button>
+  </div>
+</section>

@@ -13,6 +13,7 @@ import { ShopParams } from '../../shared/models/shopParams';
 import { Pagination } from '../../shared/models/pagination';
 import { FormsModule } from '@angular/forms';
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-shop',
@@ -27,30 +28,43 @@ import { EmptyStateComponent } from "../../shared/components/empty-state/empty-s
     MatPaginator,
     FormsModule,
     EmptyStateComponent
-],
+  ],
   templateUrl: './shop.component.html',
   styleUrl: './shop.component.scss'
 })
 export class ShopComponent implements OnInit {
   private shopService = inject(ShopService);
-  private dialogService = inject(MatDialog)
+  private dialogService = inject(MatDialog);
+  private route = inject(ActivatedRoute);
   products?: Pagination<Product>;
   sortOptions = [
-    { name: 'Alphabetical', value: 'name' },
+    { name: 'Newest', value: 'newest' },
     { name: 'Price: Low-High', value: 'priceAsc' },
     { name: 'Price: High-Low', value: 'priceDesc' },
+    { name: 'Top Rated', value: 'rating' },
+    { name: 'Most Popular', value: 'popularity' },
   ];
   shopParams = new ShopParams();
-  pageSizeOptions = [5, 10, 15, 20];
-  pageEvent?: PageEvent;
+  pageSizeOptions = [12, 24, 36, 48];
 
   ngOnInit() {
-    this.initialiseShop();
+    this.route.queryParams.subscribe(params => {
+      if (params['search']) this.shopParams.search = params['search'];
+      if (params['genders']) this.shopParams.genders = [params['genders']];
+      if (params['categories']) this.shopParams.categories = [params['categories']];
+      if (params['seasons']) this.shopParams.seasons = [params['seasons']];
+      if (params['isNewArrival']) this.shopParams.isNewArrival = params['isNewArrival'] === 'true';
+      this.initialiseShop();
+    });
   }
 
   initialiseShop() {
-    this.shopService.getTypes();
     this.shopService.getBrands();
+    this.shopService.getCategories();
+    this.shopService.getColors();
+    this.shopService.getSeasons();
+    this.shopService.getGenders();
+    this.shopService.getArticleTypes();
     this.getProducts();
   }
 
@@ -61,17 +75,14 @@ export class ShopComponent implements OnInit {
 
   onSearchChange() {
     this.shopParams.pageNumber = 1;
-    this.shopService.getProducts(this.shopParams).subscribe({
-      next: response => this.products = response,
-      error: error => console.error(error)
-    })
+    this.getProducts();
   }
 
   getProducts() {
     this.shopService.getProducts(this.shopParams).subscribe({
       next: response => this.products = response,
       error: error => console.error(error)
-    })
+    });
   }
 
   onSortChange(event: any) {
@@ -88,15 +99,21 @@ export class ShopComponent implements OnInit {
       minWidth: '500px',
       data: {
         selectedBrands: this.shopParams.brands,
-        selectedTypes: this.shopParams.types
+        selectedCategories: this.shopParams.categories,
+        selectedGenders: this.shopParams.genders,
+        selectedColors: this.shopParams.colors,
+        selectedSeasons: this.shopParams.seasons,
       }
     });
     dialogRef.afterClosed().subscribe({
       next: result => {
         if (result) {
           this.shopParams.pageNumber = 1;
-          this.shopParams.types = result.selectedTypes;
-          this.shopParams.brands = result.selectedBrands;
+          this.shopParams.brands = result.selectedBrands || [];
+          this.shopParams.categories = result.selectedCategories || [];
+          this.shopParams.genders = result.selectedGenders || [];
+          this.shopParams.colors = result.selectedColors || [];
+          this.shopParams.seasons = result.selectedSeasons || [];
           this.getProducts();
         }
       },
@@ -107,5 +124,16 @@ export class ShopComponent implements OnInit {
     this.shopParams.pageNumber = event.pageIndex + 1;
     this.shopParams.pageSize = event.pageSize;
     this.getProducts();
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.shopParams.brands.length) count++;
+    if (this.shopParams.categories.length) count++;
+    if (this.shopParams.genders.length) count++;
+    if (this.shopParams.colors.length) count++;
+    if (this.shopParams.seasons.length) count++;
+    if (this.shopParams.search) count++;
+    return count;
   }
 }

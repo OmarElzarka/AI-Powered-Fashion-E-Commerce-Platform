@@ -18,7 +18,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
 
         if (!string.IsNullOrWhiteSpace(type))
         {
-            query = query.Where(p => p.Type == type);
+            query = query.Where(p => p.ArticleType == type);
         }
 
         query = sort switch
@@ -70,7 +70,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
 
     public async Task<IReadOnlyList<string>> GetTypesAsync()
     {
-        return await context.Products.Select(p => p.Type)
+        return await context.Products.Select(p => p.ArticleType)
             .Distinct()
             .ToListAsync();
     }

@@ -2,21 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Skinet</title>
+  <title>STYLÉ — AI-Powered Fashion</title>
+  <meta name="description" content="Discover the latest fashion trends with AI-powered styling, smart recommendations, and curated collections. Shop luxury fashion with intelligent assistance.">
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
   <div id="initial-splash">
-    <div class="flex items-center justify-center h-screen">
-      <div class="flex-col items-center align-middle">
-        <img src="../images/logo.png" alt="logo">
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0a0a;">
+      <div style="text-align:center;">
+        <h1 style="font-family:'Playfair Display',serif;font-size:3rem;color:#c8a97e;letter-spacing:0.3em;margin:0;">STYLÉ</h1>
+        <p style="font-family:'Inter',sans-serif;font-size:0.85rem;color:#737373;letter-spacing:0.2em;margin-top:0.5rem;">AI-POWERED FASHION</p>
+        <div style="width:40px;height:2px;background:#c8a97e;margin:1.5rem auto;animation:pulse 1.5s ease-in-out infinite;"></div>
       </div>
     </div>
   </div>
+  <style>
+    @keyframes pulse {
+      0%,100% { opacity: 0.3; width: 40px; }
+      50% { opacity: 1; width: 80px; }
+    }
+  </style>
   <app-root></app-root>
 </body>
 </html>

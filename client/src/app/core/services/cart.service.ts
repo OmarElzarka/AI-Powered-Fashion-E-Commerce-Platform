@@ -121,9 +121,9 @@ export class CartService {
       productName: product.name,
       price: product.price,
       quantity: 0,
-      pictureUrl: product.pictureUrl,
+      pictureUrl: product.imageUrl,
       brand: product.brand,
-      type: product.type
+      type: product.category
     };
   }
 

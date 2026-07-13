@@ -1,51 +1,81 @@
-<header class="shadow-md max-h-20 p-3 w-full fixed top-0 bg-white z-50">
-  <div
-      class="flex align-middle items-center justify-between max-w-screen-2xl mx-auto">
-    <img routerLink="/" src="/images/logo.png" alt="app logo" class="max-h-16">
-    <nav class="flex gap-3 my-2 uppercase text-2xl">
+<header [class.scrolled]="isScrolled" class="site-header">
+  <div class="header-container">
+    <!-- Logo -->
+    <a routerLink="/" class="logo">
+      <span class="logo-text">STYLÉ</span>
+    </a>
+
+    <!-- Navigation -->
+    <nav class="main-nav">
       <a routerLink="/" routerLinkActive="active"
           [routerLinkActiveOptions]="{exact: true}">Home</a>
       <a routerLink="/shop" routerLinkActive="active">Shop</a>
-      <a routerLink="/test-error" routerLinkActive="active">Errors</a>
+      <a routerLink="/shop" [queryParams]="{genders: 'Women'}" routerLinkActive="active">Women</a>
+      <a routerLink="/shop" [queryParams]="{genders: 'Men'}" routerLinkActive="active">Men</a>
       <a *appIsAdmin routerLink="/admin" routerLinkActive="active">Admin</a>
     </nav>
-    <div class="flex gap-3 align-middle">
-      <a matBadge="{{cartService.itemCount()}}" routerLink="/cart"
-          routerLinkActive="active" matBadgeSize="large"
-          class="custom-badge mt-2 mr-2">
-        <mat-icon>shopping_cart</mat-icon>
+
+    <!-- Actions -->
+    <div class="header-actions">
+      <!-- Search Toggle -->
+      <button mat-icon-button class="action-btn" (click)="toggleSearch()">
+        <mat-icon>search</mat-icon>
+      </button>
+
+      <!-- Cart -->
+      <a routerLink="/cart" class="action-btn cart-btn">
+        <mat-icon [matBadge]="cartService.itemCount()" matBadgeSize="small"
+            [matBadgeHidden]="cartService.itemCount() === 0">shopping_bag</mat-icon>
       </a>
+
+      <!-- User -->
       @if (accountService.currentUser()) {
-      <div class="px-6">
-        <button mat-button [matMenuTriggerFor]="menu">
-          <mat-icon>arrow_drop_down</mat-icon>
-          <span>{{accountService.currentUser()?.email}}</span>
+        <button mat-icon-button [matMenuTriggerFor]="menu" class="action-btn">
+          <mat-icon>person_outline</mat-icon>
         </button>
-        <mat-menu #menu="matMenu" class="px-3">
-          <button mat-menu-item routerLink="/cart">
-            <mat-icon>shopping_cart</mat-icon>
-            My cart
-          </button>
+        <mat-menu #menu="matMenu" class="user-menu">
+          <div class="menu-header">
+            <span class="menu-email">{{accountService.currentUser()?.email}}</span>
+          </div>
+          <mat-divider></mat-divider>
           <button mat-menu-item routerLink="/orders">
-            <mat-icon>history</mat-icon>
-            View Orders
+            <mat-icon>receipt_long</mat-icon> My Orders
+          </button>
+          <button mat-menu-item routerLink="/cart">
+            <mat-icon>shopping_bag</mat-icon> My Cart
           </button>
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="logout()">
-            <mat-icon>logout</mat-icon>
-            Logout</button>
+            <mat-icon>logout</mat-icon> Sign Out
+          </button>
         </mat-menu>
-      </div>
       } @else {
-      <button mat-stroked-button routerLink="/account/login">Login</button>
-      <button mat-stroked-button
-          routerLink="/account/register">Register</button>
+        <a routerLink="/account/login" class="action-btn">
+          <mat-icon>person_outline</mat-icon>
+        </a>
       }
     </div>
   </div>
+
+  <!-- Search Bar -->
+  @if (showSearch) {
+    <div class="search-overlay" (click)="toggleSearch()">
+      <div class="search-container" (click)="$event.stopPropagation()">
+        <form (ngSubmit)="onSearch()">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input type="text" placeholder="Search for products, brands, categories..."
+              [(ngModel)]="searchQuery" name="search" autofocus>
+          <button type="button" mat-icon-button (click)="toggleSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </form>
+      </div>
+    </div>
+  }
 </header>
 
 @if (busyService.loading) {
-<mat-progress-bar class="fixed top-20 z-50"
-    mode="indeterminate"></mat-progress-bar>
+  <div class="progress-bar-container">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
 }
