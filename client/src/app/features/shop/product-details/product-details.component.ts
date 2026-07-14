@@ -10,6 +10,7 @@ import { MatFormField, MatLabel } from '@angular/material/form-field'
 import { MatInput } from '@angular/material/input';
 import { CartService } from '../../../core/services/cart.service';
 import { FormsModule } from '@angular/forms';
+import { BackendImagePipe } from '../../../shared/pipes/backend-image-pipe';
 
 @Component({
   selector: 'app-product-details',
@@ -22,7 +23,8 @@ import { FormsModule } from '@angular/forms';
     MatButton,
     MatFormField,
     MatInput,
-    FormsModule
+    FormsModule,
+    BackendImagePipe
   ],
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.scss'

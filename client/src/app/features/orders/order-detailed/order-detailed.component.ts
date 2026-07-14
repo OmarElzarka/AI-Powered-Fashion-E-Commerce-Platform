@@ -9,6 +9,7 @@ import { AddressPipe } from '../../../shared/pipes/address-pipe';
 import { PaymentCardPipe } from '../../../shared/pipes/payment-card-pipe';
 import { AccountService } from '../../../core/services/account.service';
 import { AdminService } from '../../../core/services/admin.service';
+import { BackendImagePipe } from '../../../shared/pipes/backend-image-pipe';
 
 @Component({
   selector: 'app-order-detailed',
@@ -18,7 +19,8 @@ import { AdminService } from '../../../core/services/admin.service';
     MatButton,
     AddressPipe,
     PaymentCardPipe,
-    CurrencyPipe
+    CurrencyPipe,
+    BackendImagePipe
   ],
   templateUrl: './order-detailed.component.html',
   styleUrl: './order-detailed.component.scss'

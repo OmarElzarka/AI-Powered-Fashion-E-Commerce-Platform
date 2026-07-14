@@ -7,12 +7,15 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<StoreContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -58,6 +61,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseMiddleware<ExceptionMiddleware>();
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.UseCors(x => x
     .AllowAnyHeader()
     .AllowAnyMethod()
@@ -67,13 +73,15 @@ app.UseCors(x => x
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "Data", "SeedData", "images")),
+    RequestPath = "/images"
+});
 
 app.MapControllers();
 app.MapGroup("api").MapIdentityApi<AppUser>();
 app.MapHub<NotificationHub>("/hub/notifications");
-app.MapFallbackToController("Index", "Fallback");
 
 try
 {
@@ -86,7 +94,7 @@ try
     var logger = services.GetRequiredService<ILogger<Program>>();
     await context.Database.MigrateAsync();
     await StoreContextSeed.SeedAsync(context, userManager, dataImportService, cacheService, logger,
-        app.Environment.WebRootPath);
+        Path.Combine(builder.Environment.ContentRootPath, "Data", "SeedData"));
 }
 catch (Exception e)
 {

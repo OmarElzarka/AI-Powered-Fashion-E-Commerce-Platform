@@ -37,7 +37,7 @@
       @for (product of trendingProducts; track product.id) {
         <a routerLink="/shop/{{product.id}}" class="product-card-home">
           <div class="product-image-wrapper">
-            <img [src]="product.imageUrl" [alt]="product.name" loading="lazy">
+            <img [src]="product.imageUrl | backendImage" [alt]="product.name" loading="lazy">
             @if (product.discountPercentage > 0) {
               <span class="discount-badge">-{{product.discountPercentage}}%</span>
             }
@@ -98,7 +98,7 @@
       @for (product of newArrivals; track product.id) {
         <a routerLink="/shop/{{product.id}}" class="product-card-home">
           <div class="product-image-wrapper">
-            <img [src]="product.imageUrl" [alt]="product.name" loading="lazy">
+            <img [src]="product.imageUrl | backendImage" [alt]="product.name" loading="lazy">
             <span class="new-badge">NEW</span>
           </div>
           <div class="product-info">

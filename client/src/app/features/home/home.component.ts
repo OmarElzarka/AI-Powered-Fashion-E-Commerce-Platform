@@ -5,10 +5,11 @@ import { Product } from '../../shared/models/product';
 import { CurrencyPipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton } from '@angular/material/button';
+import { BackendImagePipe } from '../../shared/pipes/backend-image-pipe';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, CurrencyPipe, MatIcon, MatButton],
+  imports: [RouterLink, CurrencyPipe, MatIcon, MatButton, BackendImagePipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })

@@ -11,7 +11,7 @@ namespace Infrastructure.Data;
 public class StoreContextSeed
 {
     public static async Task SeedAsync(StoreContext context, UserManager<AppUser> userManager,
-        IDataImportService dataImportService, IResponseCacheService responseCacheService, ILogger logger, string webRootPath)
+        IDataImportService dataImportService, IResponseCacheService responseCacheService, ILogger logger, string seedDataPath)
     {
         if (!userManager.Users.Any(x => x.UserName == "admin@test.com"))
         {
@@ -44,8 +44,8 @@ public class StoreContextSeed
         {
             logger.LogInformation("No products found. Starting fashion dataset import...");
 
-            var datasetPath = webRootPath; // wwwroot contains styles.csv, styles/, images/
-            var targetImagePath = Path.Combine(webRootPath, "assets", "products");
+            var datasetPath = seedDataPath;
+            var targetImagePath = Path.Combine(seedDataPath, "assets", "products");
 
             var result = await dataImportService.ImportFromDatasetAsync(datasetPath, targetImagePath);
 

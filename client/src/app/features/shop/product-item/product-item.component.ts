@@ -6,6 +6,7 @@ import { CurrencyPipe } from '@angular/common';
 import { MatButton } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../../core/services/cart.service';
+import { BackendImagePipe } from '../../../shared/pipes/backend-image-pipe';
 
 @Component({
   selector: 'app-product-item',
@@ -17,7 +18,8 @@ import { CartService } from '../../../core/services/cart.service';
     MatIcon,
     CurrencyPipe,
     MatButton,
-    RouterLink
+    RouterLink,
+    BackendImagePipe
   ],
   templateUrl: './product-item.component.html',
   styleUrl: './product-item.component.scss'

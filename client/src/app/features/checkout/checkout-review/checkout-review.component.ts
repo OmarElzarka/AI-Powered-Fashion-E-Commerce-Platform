@@ -4,10 +4,11 @@ import { CurrencyPipe } from '@angular/common';
 import { ConfirmationToken } from '@stripe/stripe-js';
 import { AddressPipe } from '../../../shared/pipes/address-pipe';
 import { PaymentCardPipe } from '../../../shared/pipes/payment-card-pipe';
+import { BackendImagePipe } from '../../../shared/pipes/backend-image-pipe';
 
 @Component({
   selector: 'app-checkout-review',
-  imports: [CurrencyPipe, AddressPipe, PaymentCardPipe],
+  imports: [CurrencyPipe, AddressPipe, PaymentCardPipe, BackendImagePipe],
   templateUrl: './checkout-review.component.html',
   styleUrl: './checkout-review.component.scss'
 })
