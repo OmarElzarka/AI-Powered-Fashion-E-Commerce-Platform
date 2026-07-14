@@ -16,6 +16,15 @@ public class OrderService(ICartService cartService, IUnitOfWork unit) : IOrderSe
         if (cart == null) return null;
         if (cart.PaymentIntentId == null) return null;
 
+        var spec = new OrderSpecification(cart.PaymentIntentId, true);
+        var existingOrder = await unit.Repository<Order>().GetEntityWithSpec(spec);
+
+        if (existingOrder != null)
+        {
+            unit.Repository<Order>().Remove(existingOrder);
+            await unit.Complete();
+        }
+
         var items = new List<OrderItem>();
 
         foreach (var item in cart.Items)

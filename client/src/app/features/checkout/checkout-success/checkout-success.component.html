@@ -1,60 +1,74 @@
 @if (signalrService.orderSignal(); as order) {
-<section class="bg-white py-16">
-    <div class="mx-auto max-w-2xl px-4">
-        <h2 class="font-semibold text-2xl mb-2">Thanks for your fake order!</h2>
-        <p class="text-gray-500 mb-8">Your order <span
-                class="font-medium">#{{order.id}}</span> will never be processed
-            as this
-            is a fake shop. We will not notify you by email once your order has
-            not been shipped.</p>
-        <div
-            class="space-y-2 rounded-lg border border-gray-100 bg-gray-50 p-6 mb-8">
-            <dl class="flex items-center justify-between gap-4">
-                <dt class="font-normal text-gray-500">Date</dt>
-                <dd class="font-medium text-gray-900 text-end">
-                    {{order.orderDate | date: 'medium'}}</dd>
-            </dl>
-            <dl class="flex items-center justify-between gap-4">
-                <dt class="font-normal text-gray-500">Payment method</dt>
-                <dd class="font-medium text-gray-900 text-end">
-                    {{order.paymentSummary | paymentCard}}
-            </dl>
-            <dl class="flex items-center justify-between gap-4">
-                <dt class="font-normal text-gray-500">Address</dt>
-                <dd class="font-medium text-gray-900 text-end">
-                    {{order.shippingAddress | address}}
-                </dd>
-            </dl>
-            <dl class="flex items-center justify-between gap-4">
-                <dt class="font-normal text-gray-500">Amount</dt>
-                <dd class="font-medium text-gray-900 text-end">{{order.total |
-                    currency}}</dd>
-            </dl>
-        </div>
-        <div class="flex items-center space-x-4">
-            <button routerLink="/orders/{{order.id}}" mat-flat-button>View your
-                order</button>
-            <button routerLink="/shop" mat-stroked-button>Continue
-                shopping</button>
+<section class="bg-gray-50 py-16 min-h-[80vh] flex items-center">
+    <div class="mx-auto max-w-3xl px-4 w-full">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-12 text-center">
+            
+            <!-- Success Icon -->
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-50 mb-6">
+                <svg class="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+
+            <h2 class="font-bold text-3xl mb-3 text-gray-900 tracking-tight">Payment Successful!</h2>
+            <p class="text-gray-500 mb-10 text-lg">
+                Your order <span class="font-medium text-gray-900">#{{order.id}}</span> has been confirmed.
+                (Note: This is a demo shop, no actual items will be shipped).
+            </p>
+            
+            <div class="rounded-xl border border-gray-100 bg-gray-50 p-6 sm:p-8 mb-10 text-left">
+                <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-6 border-b border-gray-200 pb-4">Order Details</h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
+                    <div>
+                        <dt class="text-sm text-gray-500 mb-1">Date</dt>
+                        <dd class="text-base font-medium text-gray-900">{{order.orderDate | date: 'mediumDate'}}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-gray-500 mb-1">Payment Method</dt>
+                        <dd class="text-base font-medium text-gray-900">{{order.paymentSummary | paymentCard}}</dd>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <dt class="text-sm text-gray-500 mb-1">Shipping Address</dt>
+                        <dd class="text-base font-medium text-gray-900">{{order.shippingAddress | address}}</dd>
+                    </div>
+                    <div class="sm:col-span-2 pt-6 border-t border-gray-200 mt-2 flex justify-between items-center">
+                        <dt class="text-lg text-gray-900 font-semibold">Total Amount</dt>
+                        <dd class="text-2xl font-bold text-gray-900">{{order.total | currency}}</dd>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button routerLink="/orders/{{order.id}}" 
+                    class="w-full sm:w-auto rounded-full bg-black px-8 py-3 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 transition-all">
+                    View Order Status
+                </button>
+                <button routerLink="/shop" 
+                    class="w-full sm:w-auto rounded-full bg-white px-8 py-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all">
+                    Continue Shopping
+                </button>
+            </div>
         </div>
     </div>
 </section>
 } @else {
-<section class="bg-white py-16">
-    <div class="mx-auto max-w-2xl px-4">
-        <h2 class="font-semibold text-2xl mb-2">Order processing, please wait</h2>
-
-        <div class="space-y-2 rounded-lg border border-gray-100 bg-gray-50 p-6 mb-8">
-            <div class="flex flex-col justify-center items-center">
-                <mat-spinner diameter="30"></mat-spinner>
-                <p class="text-xl">Loading order...</p>
-                <span>Your payment has been received, we are creating the order</span>
+<section class="bg-gray-50 py-16 min-h-[80vh] flex items-center">
+    <div class="mx-auto max-w-2xl px-4 w-full">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+            
+            <div class="flex flex-col justify-center items-center mb-8">
+                <mat-spinner diameter="40" class="mb-6"></mat-spinner>
+                <h2 class="font-bold text-2xl text-gray-900 mb-2 tracking-tight">Processing your order...</h2>
+                <p class="text-gray-500">Please do not close this window. We are confirming your payment with Stripe.</p>
             </div>
-        </div>
-        
-        <div class="flex items-center space-x-4">
-            <button routerLink="/shop" mat-stroked-button>Continue
-                shopping</button>
+            
+            <div class="pt-8 border-t border-gray-100 mt-8">
+                <button routerLink="/shop" 
+                    class="rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all">
+                    Back to Shop
+                </button>
+            </div>
         </div>
     </div>
 </section>

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { forkJoin, of, tap, catchError } from 'rxjs';
+import { forkJoin, of, tap, catchError, switchMap } from 'rxjs';
 import { CartService } from './cart.service';
 import { AccountService } from './account.service';
 import { SignalrService } from './signalr.service';
@@ -13,8 +13,6 @@ export class InitService {
   private signalrService = inject(SignalrService);
 
   init() {
-    const cartId = localStorage.getItem('cart_id');
-    const cart$ = cartId ? this.cartService.getCart(cartId) : of(null);
     const token = this.accountService.getAccessToken();
     const user$ = token ? this.accountService.getUserInfo().pipe(
         tap(user => {
@@ -24,8 +22,13 @@ export class InitService {
       ) : of(null);
 
     return forkJoin({
-      cart: cart$,
-      user: user$
+      user: user$,
+      cart: user$.pipe(
+        switchMap(() => {
+          const cartId = localStorage.getItem('cart_id');
+          return cartId ? this.cartService.getCart(cartId) : of(null);
+        })
+      )
     })
   }
 }

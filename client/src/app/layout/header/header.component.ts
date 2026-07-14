@@ -62,6 +62,8 @@ export class HeaderComponent {
     this.accountService.logout().subscribe({
       next: () => {
         this.accountService.currentUser.set(null);
+        this.cartService.cart.set(null);
+        localStorage.removeItem('cart_id');
         this.router.navigateByUrl('/');
       }
     });

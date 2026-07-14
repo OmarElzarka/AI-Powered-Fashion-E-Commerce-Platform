@@ -11,7 +11,6 @@ import { OrderService } from '../../../core/services/order.service';
 @Component({
   selector: 'app-checkout-success',
   imports: [
-    MatButton,
     RouterLink,
     MatProgressSpinnerModule,
     DatePipe,

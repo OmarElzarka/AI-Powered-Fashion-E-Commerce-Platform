@@ -23,7 +23,6 @@ import { OrderService } from '../../core/services/order.service';
   imports: [
     OrderSummaryComponent,
     MatStepperModule,
-    MatButton,
     RouterLink,
     MatCheckboxModule,
     CheckoutDeliveryComponent,
@@ -99,34 +98,39 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   async onStepChange(event: StepperSelectionEvent) {
     if (event.selectedIndex === 1) {
-      const address = await this.getAddressFromStripeAddress();
-      address && firstValueFrom(this.accountService.updateAddress(address));
+      if (this.saveAddress) {
+        const address = await this.getAddressFromStripeAddress();
+        address && firstValueFrom(this.accountService.updateAddress(address));
+      }
     }
     if (event.selectedIndex === 2) {
       await firstValueFrom(this.stripeService.createOrUpdatePaymentIntent());
     }
     if (event.selectedIndex === 3) {
+      this.confirmationToken = undefined;
       await this.getConfirmationToken();
     }
   }
 
   async confirmPayment(stepper: MatStepper) {
+    if (this.loading) return;
     this.loading = true;
     try {
       if (this.confirmationToken) {
+        const order = await this.createOrderModel();
+        const orderResult = await firstValueFrom(this.orderService.createOrder(order));
+        
+        if (!orderResult) {
+          throw new Error('Order creation failed');
+        }
+
         const result = await this.stripeService.confirmPayment(this.confirmationToken);
 
         if (result.paymentIntent?.status === 'succeeded') {
-          const order = await this.createOrderModel();
-          const orderResult = await firstValueFrom(this.orderService.createOrder(order));
-          if (orderResult) {
-            this.orderService.orderComplete = true;
-            this.cartService.deleteCart();
-            this.cartService.selectedDelivery.set(null);
-            this.router.navigateByUrl('/checkout/success');
-          } else {
-            throw new Error('Order creation failed');
-          }
+          this.orderService.orderComplete = true;
+          this.cartService.deleteCart();
+          this.cartService.selectedDelivery.set(null);
+          this.router.navigateByUrl('/checkout/success');
         } else if (result.error) {
           throw new Error(result.error.message);
         } else {

@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { User, Address } from '../../shared/models/user';
 import { map, tap, catchError } from 'rxjs/operators';
 import { SignalrService } from './signalr.service';
+import { CartService } from './cart.service';
 import { of, throwError } from 'rxjs';
 
 @Injectable({
@@ -13,6 +14,7 @@ export class AccountService {
   baseUrl = environment.baseUrl;
   private http = inject(HttpClient);
   private signalrService = inject(SignalrService);
+  private cartService = inject(CartService);
   currentUser = signal<User | null>(null);
   isAdmin = computed(() => {
     const roles = this.currentUser()?.roles;
@@ -38,6 +40,25 @@ export class AccountService {
       map(user => {
         this.currentUser.set(user);
         return user;
+      }),
+      tap(user => {
+        const currentCartId = localStorage.getItem('cart_id');
+        const email = user.email;
+
+        if (currentCartId && currentCartId !== email) {
+          const cart = this.cartService.cart();
+          if (cart && cart.items.length > 0) {
+            cart.id = email;
+            localStorage.setItem('cart_id', email);
+            this.cartService.setCart(cart).subscribe();
+          } else {
+            localStorage.setItem('cart_id', email);
+            this.cartService.getCart(email).subscribe();
+          }
+        } else if (!currentCartId) {
+          localStorage.setItem('cart_id', email);
+          this.cartService.getCart(email).subscribe();
+        }
       })
     );
   }
@@ -47,13 +68,14 @@ export class AccountService {
       tap(() => {
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('cart_id');
         this.currentUser.set(null);
         this.signalrService.stopHubConnection();
       }),
       catchError(() => {
-        // Fallback even if API logout fails
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('cart_id');
         this.currentUser.set(null);
         this.signalrService.stopHubConnection();
         return of(null);
@@ -103,6 +125,7 @@ export class AccountService {
       tap(() => {
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('cart_id');
         this.currentUser.set(null);
         this.signalrService.stopHubConnection();
       })

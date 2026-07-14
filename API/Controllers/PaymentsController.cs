@@ -24,11 +24,26 @@ public class PaymentsController(IPaymentService paymentService,
     [HttpPost("{cartId}")]
     public async Task<ActionResult> CreateOrUpdatePaymentIntent(string cartId)
     {
-        var cart = await paymentService.CreateOrUpdatePaymentIntent(cartId);
+        var secretKey = config["StripeSettings:SecretKey"];
 
-        if (cart == null) return BadRequest("Problem with your cart on the API");
+        if (string.IsNullOrEmpty(secretKey))
+        {
+            return BadRequest("Payment processing is currently unavailable. Stripe API key is not configured.");
+        }
 
-        return Ok(cart);
+        try
+        {
+            var cart = await paymentService.CreateOrUpdatePaymentIntent(cartId);
+
+            if (cart == null) return BadRequest("Problem with your cart on the API");
+
+            return Ok(cart);
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error");
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet("delivery-methods")]
