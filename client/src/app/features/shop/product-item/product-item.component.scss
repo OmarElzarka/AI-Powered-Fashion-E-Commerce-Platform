@@ -7,3 +7,20 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
+
+button.added {
+  background-color: #e6f4ea !important;
+  color: #1e8e3e !important;
+  border-color: #1e8e3e !important;
+  transition: all 0.3s ease;
+}
+
+.pop-in {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  display: inline-block;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

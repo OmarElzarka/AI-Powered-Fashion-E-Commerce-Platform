@@ -1,26 +1,45 @@
-<mat-card class="max-w-lg mx-auto mt-32 p-8 bg-white">
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-semibold text-primary">Register</h1>
+<div class="auth-page">
+  <!-- Left Visual Panel -->
+  <div class="auth-visual">
+    <div class="visual-content">
+      <a routerLink="/" class="brand-logo">STYLÉ</a>
+      <h2 class="visual-title">Join the <span class="accent">Journey</span></h2>
+      <p class="visual-desc">Create your personalized profile and discover curated collections inspired by your unique vibe.</p>
+    </div>
+  </div>
+
+  <!-- Right Form Panel -->
+  <div class="auth-form-panel">
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Create Account</h1>
+        <p>Start your premium experience</p>
+      </div>
+
+      @if (validationErrors.length > 0) {
+        <div class="login-error">
+          <ul class="error-list">
+            @for (error of validationErrors; track error) {
+              <li>{{error}}</li>
+            }
+          </ul>
         </div>
-        <app-text-input label="First name" formControlName="firstName" />
-        <app-text-input label="Last name" formControlName="lastName" />
-        <app-text-input label="Email address" formControlName="email" />
+      }
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <app-text-input label="First Name" formControlName="firstName" />
+        <app-text-input label="Last Name" formControlName="lastName" />
+        <app-text-input label="Email Address" formControlName="email" />
         <app-text-input label="Password" formControlName="password" type="password" />
-        
-        @if (validationErrors.length > 0) {
-            <div class="mb-3 p-4 bg-red-100 text-red-500">
-              <ul class="list-disc px-3">
-                @for (error of validationErrors; track error) {
-                  <li>{{error}}</li>
-                }
-              </ul>
-            </div>
-          }
-        <button 
-            [disabled]="registerForm.invalid"
-            mat-flat-button 
-            type="submit" 
-            class="w-full py-2">Register</button>
-    </form>
-</mat-card>
+
+        <button mat-flat-button type="submit" class="submit-btn" [disabled]="registerForm.invalid">
+          Sign Up
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a routerLink="/account/login">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>

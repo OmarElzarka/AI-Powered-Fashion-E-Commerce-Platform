@@ -1,31 +1,42 @@
 /* ================================================================
    STYLÉ — Login Page
-   Matches sign-up split-screen premium aesthetic
+   Minimalist Earth Tones / Cozy Organic Modern
    ================================================================ */
+
+:host {
+  --color-earth-bg: #f9f6f0; /* Ivory/soft cream */
+  --color-earth-surface: #ffffff;
+  --color-earth-border: #d4c5b9; /* Oatmeal/biscuit brown */
+  --color-earth-primary: #a35d47; /* Cinnamon/rust brown */
+  --color-earth-primary-hover: #8c4e3b;
+  --color-earth-text: #4a403a; /* Deep warm brown */
+  --color-earth-text-muted: #8b7d73;
+}
 
 .auth-page {
   display: flex;
   min-height: 100vh;
-  background: var(--color-primary);
+  background: var(--color-earth-bg);
+  font-family: 'Inter', sans-serif;
 }
 
 /* ── Left Visual Panel ────────────────────────── */
 .auth-visual {
-  flex: 0 0 42%;
+  flex: 0 0 45%;
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
-
+  background-image: url('/images/sideimage1.jpg');
+  background-size: cover;
+  background-position: center;
+  
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background:
-      radial-gradient(ellipse at 30% 60%, rgba(200,169,126,0.1) 0%, transparent 60%),
-      radial-gradient(ellipse at 70% 30%, rgba(200,169,126,0.06) 0%, transparent 50%);
+    background: rgba(74, 64, 58, 0.25); /* Warm dark overlay for text contrast */
   }
 }
 
@@ -34,62 +45,39 @@
   z-index: 1;
   padding: 4rem 3rem;
   max-width: 440px;
+  text-align: center;
 }
 
 .brand-logo {
   display: inline-block;
-  font-family: var(--font-display);
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: white;
-  letter-spacing: 0.25em;
+  font-family: var(--font-display, serif);
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: 0.2em;
   text-decoration: none;
   margin-bottom: 3rem;
-  transition: color var(--transition-base);
+  transition: opacity 0.3s;
 
-  &:hover { color: var(--color-secondary); }
+  &:hover { opacity: 0.8; }
 }
 
 .visual-title {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 3.5vw, 2.8rem);
-  font-weight: 400;
-  color: white;
+  font-family: var(--font-display, serif);
+  font-size: clamp(2.2rem, 3.5vw, 3rem);
+  font-weight: 300;
+  color: #fff;
   line-height: 1.2;
   margin: 0 0 1.25rem;
 }
 
-.gold { color: var(--color-secondary); }
+.gold { font-style: italic; font-weight: 400; }
 
 .visual-desc {
-  font-size: 0.95rem;
-  color: rgba(255,255,255,0.45);
-  line-height: 1.7;
-}
-
-/* Floating orbs */
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-}
-.orb-1 {
-  width: 250px; height: 250px;
-  bottom: 10%; left: -5%;
-  background: radial-gradient(circle, rgba(200,169,126,0.12) 0%, transparent 70%);
-  animation: floatOrb 9s ease-in-out infinite;
-}
-.orb-2 {
-  width: 160px; height: 160px;
-  top: 15%; right: 10%;
-  background: radial-gradient(circle, rgba(200,169,126,0.08) 0%, transparent 70%);
-  animation: floatOrb 7s ease-in-out infinite reverse;
-}
-
-@keyframes floatOrb {
-  0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(15px, -20px); }
-  66% { transform: translate(-10px, 12px); }
+  font-size: 1rem;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+  font-weight: 300;
 }
 
 /* ── Right Form Panel ─────────────────────────── */
@@ -99,28 +87,33 @@
   align-items: center;
   justify-content: center;
   padding: 3rem 2rem;
-  background: var(--color-primary);
 }
 
 .form-container {
   width: 100%;
   max-width: 420px;
+  background: var(--color-earth-surface);
+  padding: 3.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(139, 125, 115, 0.08);
+  border: 1px solid rgba(212, 197, 185, 0.4);
 }
 
 .form-header {
   margin-bottom: 2.5rem;
+  text-align: center;
 
   h1 {
-    font-family: var(--font-display);
+    font-family: var(--font-display, serif);
     font-size: 2rem;
-    font-weight: 400;
-    color: white;
+    font-weight: 500;
+    color: var(--color-earth-text);
     margin: 0 0 0.5rem;
   }
 
   p {
-    font-size: 0.9rem;
-    color: rgba(255,255,255,0.4);
+    font-size: 0.95rem;
+    color: var(--color-earth-text-muted);
   }
 }
 
@@ -129,12 +122,12 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: var(--radius-md);
+  background: #fdf2f2;
+  border: 1px solid #f8b4b4;
+  border-radius: 8px;
   padding: 0.85rem 1rem;
   margin-bottom: 1.5rem;
-  color: #f87171;
+  color: #c53030;
   font-size: 0.85rem;
   animation: slideIn 0.3s ease;
 
@@ -142,70 +135,48 @@
     font-size: 18px;
     width: 18px;
     height: 18px;
-    flex-shrink: 0;
   }
 }
 
 /* ── Field Groups ─────────────────────────────── */
 .field-group {
-  position: relative;
-  margin-bottom: 0.5rem;
-
+  margin-bottom: 1.25rem;
+  
   mat-form-field { width: 100%; }
 }
 
 .field-error-msg {
   display: block;
   font-size: 0.75rem;
-  color: #f87171;
+  color: #e53e3e;
   margin-top: -4px;
   margin-bottom: 8px;
   padding-left: 4px;
-  animation: slideIn 0.2s ease;
-}
-
-@keyframes slideIn {
-  0% { transform: translateY(-4px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
 }
 
 /* ── Material Input Overrides ─────────────────── */
 mat-form-field {
   ::ng-deep .mat-mdc-text-field-wrapper {
-    background-color: rgba(255,255,255,0.04) !important;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    transition: background-color var(--transition-base);
-
-    &:hover {
-      background-color: rgba(255,255,255,0.07) !important;
-    }
+    background-color: var(--color-earth-bg) !important;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid var(--color-earth-border);
   }
 
   ::ng-deep input.mat-mdc-input-element {
-    color: white !important;
-    caret-color: var(--color-secondary);
+    color: var(--color-earth-text) !important;
+    caret-color: var(--color-earth-primary);
   }
 
   ::ng-deep .mdc-floating-label {
-    color: rgba(255,255,255,0.4) !important;
-  }
-
-  ::ng-deep .mdc-line-ripple::before {
-    border-bottom-color: rgba(255,255,255,0.12) !important;
+    color: var(--color-earth-text-muted) !important;
   }
 
   ::ng-deep .mdc-line-ripple::after {
-    border-bottom-color: var(--color-secondary) !important;
+    border-bottom-color: var(--color-earth-primary) !important;
   }
-
+  
   ::ng-deep .mat-mdc-form-field-icon-suffix {
-    color: rgba(255,255,255,0.3);
-  }
-}
-
-.field-group.invalid mat-form-field {
-  ::ng-deep .mdc-line-ripple::before {
-    border-bottom-color: var(--color-error) !important;
+    color: var(--color-earth-text-muted);
   }
 }
 
@@ -213,25 +184,26 @@ mat-form-field {
 .submit-btn {
   width: 100%;
   height: 52px;
-  font-size: 0.85rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.12em !important;
-  text-transform: uppercase !important;
-  border-radius: var(--radius-sm) !important;
-  background: var(--color-secondary) !important;
-  color: var(--color-primary) !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.05em !important;
+  border-radius: 8px !important;
+  background: var(--color-earth-primary) !important;
+  color: white !important;
   margin-top: 1rem;
-  transition: all var(--transition-base) !important;
+  box-shadow: 0 4px 14px rgba(163, 93, 71, 0.25) !important;
+  transition: all 0.3s ease !important;
 
   &:not(:disabled):hover {
-    background: var(--color-secondary-light) !important;
+    background: var(--color-earth-primary-hover) !important;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(200,169,126,0.3);
+    box-shadow: 0 6px 20px rgba(163, 93, 71, 0.35) !important;
   }
 
   &:disabled {
-    background: rgba(255,255,255,0.06) !important;
-    color: rgba(255,255,255,0.2) !important;
+    background: var(--color-earth-border) !important;
+    color: rgba(255,255,255,0.7) !important;
+    box-shadow: none !important;
   }
 }
 
@@ -239,36 +211,35 @@ mat-form-field {
 .auth-footer {
   text-align: center;
   margin-top: 2rem;
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.35);
+  font-size: 0.9rem;
+  color: var(--color-earth-text-muted);
 
   a {
-    color: var(--color-secondary);
+    color: var(--color-earth-primary);
     text-decoration: none;
-    font-weight: 500;
-    transition: color var(--transition-fast);
+    font-weight: 600;
+    transition: color 0.2s;
 
     &:hover {
-      color: var(--color-secondary-light);
+      color: var(--color-earth-primary-hover);
       text-decoration: underline;
     }
   }
 }
 
 /* ── Responsive ───────────────────────────────── */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .auth-page { flex-direction: column; }
-
+  
   .auth-visual {
     flex: none;
-    min-height: 250px;
-    padding: 2rem;
+    min-height: 300px;
   }
 
-  .visual-content {
-    padding: 2rem 1.5rem;
-    text-align: center;
+  .form-container {
+    padding: 2.5rem 1.5rem;
+    box-shadow: none;
+    border: none;
+    background: transparent;
   }
-
-  .auth-form-panel { padding: 1.5rem; }
 }

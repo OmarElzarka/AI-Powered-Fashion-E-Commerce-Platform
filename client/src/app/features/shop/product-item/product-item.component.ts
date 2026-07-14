@@ -26,5 +26,17 @@ import { BackendImagePipe } from '../../../shared/pipes/backend-image-pipe';
 })
 export class ProductItemComponent {
  @Input() product?: Product;
- cartService = inject(CartService)
+ cartService = inject(CartService);
+ isAdded = false;
+
+ addToCart() {
+   if (!this.product) return;
+   
+   this.cartService.addItemToCart(this.product);
+   this.isAdded = true;
+   
+   setTimeout(() => {
+     this.isAdded = false;
+   }, 2000);
+ }
 }

@@ -1,0 +1,246 @@
+/* ================================================================
+   STYLÉ — Register Page
+   Autumnal Boho-Chic / Warm Transitional
+   ================================================================ */
+
+:host {
+  --color-boho-bg: #fdfaf6; /* Warm off-white */
+  --color-boho-surface: #ffffff;
+  --color-boho-border: #e8dcc8; /* Warm ivory/sand */
+  --color-boho-primary: #c97046; /* Rust red/marigold */
+  --color-boho-primary-hover: #b05c36;
+  --color-boho-text: #2a3d45; /* Deep navy/slate */
+  --color-boho-text-muted: #7c8e90; /* Sage green tint */
+  --color-boho-accent: #d89b4e; /* Mustard yellow */
+}
+
+.auth-page {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-boho-bg);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Left Visual Panel ────────────────────────── */
+.auth-visual {
+  flex: 0 0 45%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/images/sideimage2.jpg');
+  background-size: cover;
+  background-position: center;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(42, 61, 69, 0.1), rgba(42, 61, 69, 0.4));
+  }
+}
+
+.visual-content {
+  position: relative;
+  z-index: 1;
+  padding: 4rem 3rem;
+  max-width: 440px;
+  text-align: center;
+}
+
+.brand-logo {
+  display: inline-block;
+  font-family: var(--font-display, serif);
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  margin-bottom: 3rem;
+  transition: opacity 0.3s;
+
+  &:hover { opacity: 0.8; }
+}
+
+.visual-title {
+  font-family: var(--font-display, serif);
+  font-size: clamp(2.2rem, 3.5vw, 3rem);
+  font-weight: 300;
+  color: #fff;
+  line-height: 1.2;
+  margin: 0 0 1.25rem;
+}
+
+.accent { 
+  font-style: italic; 
+  font-weight: 400;
+  color: #fce6c5; /* Soft marigold */
+}
+
+.visual-desc {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ── Right Form Panel ─────────────────────────── */
+.auth-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-boho-surface);
+  padding: 3.5rem;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(201, 112, 70, 0.05);
+  border: 1px solid rgba(232, 220, 200, 0.5);
+}
+
+.form-header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+
+  h1 {
+    font-family: var(--font-display, serif);
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--color-boho-text);
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+    color: var(--color-boho-text-muted);
+  }
+}
+
+/* ── Inline Error ─────────────────────────────── */
+.login-error {
+  background: #fef1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #e11d48;
+  font-size: 0.85rem;
+  animation: slideIn 0.3s ease;
+}
+
+.error-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+/* ── Field Groups ─────────────────────────────── */
+::ng-deep app-text-input {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Overriding Material Outline Inputs from app-text-input */
+::ng-deep app-text-input mat-form-field {
+  width: 100%;
+
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: var(--color-boho-border) !important;
+  }
+
+  &.mat-focused .mdc-notched-outline__leading,
+  &.mat-focused .mdc-notched-outline__notch,
+  &.mat-focused .mdc-notched-outline__trailing {
+    border-color: var(--color-boho-primary) !important;
+    border-width: 2px !important;
+  }
+
+  input.mat-mdc-input-element {
+    color: var(--color-boho-text) !important;
+    caret-color: var(--color-boho-primary);
+  }
+
+  .mdc-floating-label {
+    color: var(--color-boho-text-muted) !important;
+  }
+
+  &.mat-focused .mdc-floating-label {
+    color: var(--color-boho-primary) !important;
+  }
+}
+
+/* ── Submit Button ────────────────────────────── */
+.submit-btn {
+  width: 100%;
+  height: 52px;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.05em !important;
+  border-radius: 8px !important;
+  background: var(--color-boho-primary) !important;
+  color: white !important;
+  margin-top: 1rem;
+  box-shadow: 0 4px 14px rgba(201, 112, 70, 0.2) !important;
+  transition: all 0.3s ease !important;
+
+  &:not(:disabled):hover {
+    background: var(--color-boho-primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201, 112, 70, 0.3) !important;
+  }
+
+  &:disabled {
+    background: var(--color-boho-border) !important;
+    color: rgba(255,255,255,0.8) !important;
+    box-shadow: none !important;
+  }
+}
+
+/* ── Footer ───────────────────────────────────── */
+.auth-footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: var(--color-boho-text-muted);
+
+  a {
+    color: var(--color-boho-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--color-boho-primary-hover);
+      text-decoration: underline;
+    }
+  }
+}
+
+@keyframes slideIn {
+  0% { transform: translateY(-4px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 900px) {
+  .auth-page { flex-direction: column; }
+  
+  .auth-visual {
+    flex: none;
+    min-height: 250px;
+  }
+
+  .form-container {
+    padding: 2.5rem 1.5rem;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+  }
+}
