@@ -72,7 +72,7 @@ export class StripeService {
             line1: user.address.line1,
             line2: user.address.line2,
             city: user.address.city,
-            state: user.address.state,
+            state: user.address.state || '',
             country: user.address.country,
             postal_code: user.address.postalCode
           };

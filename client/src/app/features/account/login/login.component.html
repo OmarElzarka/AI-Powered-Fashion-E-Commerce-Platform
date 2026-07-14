@@ -1,19 +1,72 @@
-<mat-card class="max-w-lg mx-auto mt-32 p-8 bg-white">
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-semibold text-primary">Login</h1>
+<div class="auth-page">
+  <!-- Left Visual Panel -->
+  <div class="auth-visual">
+    <div class="visual-content">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+
+      <a routerLink="/" class="brand-logo">STYLÉ</a>
+      <h2 class="visual-title">Welcome <span class="gold">Back</span></h2>
+      <p class="visual-desc">Continue your style journey. Your curated collections and personalized recommendations are waiting.</p>
+    </div>
+  </div>
+
+  <!-- Right Form Panel -->
+  <div class="auth-form-panel">
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Sign In</h1>
+        <p>Access your premium account</p>
+      </div>
+
+      <!-- Inline Error -->
+      @if (loginError()) {
+        <div class="login-error">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ loginError() }}</span>
         </div>
-        <mat-form-field appearance="outline" class="w-full mb-4">
-            <mat-label>Email address</mat-label>
-            <input matInput formControlName="email" type="email"
-                placeholder="name@example.com" />
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="w-full mb-6">
+      }
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="field-group" [ngClass]="{'invalid': loginForm.get('email')?.touched && loginForm.get('email')?.invalid}">
+          <mat-form-field appearance="fill">
+            <mat-label>Email Address</mat-label>
+            <input matInput formControlName="email" type="email" autocomplete="email"
+                   placeholder="name@example.com">
+          </mat-form-field>
+          @if (loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')) {
+            <span class="field-error-msg">Email is required</span>
+          } @else if (loginForm.get('email')?.touched && loginForm.get('email')?.hasError('email')) {
+            <span class="field-error-msg">Please enter a valid email</span>
+          }
+        </div>
+
+        <div class="field-group" [ngClass]="{'invalid': loginForm.get('password')?.touched && loginForm.get('password')?.invalid}">
+          <mat-form-field appearance="fill">
             <mat-label>Password</mat-label>
-            <input matInput formControlName="password" type="password"
-                placeholder="Password" />
-        </mat-form-field>
-        <button mat-flat-button type="submit" color="primary"
-            class="w-full py-2">Sign in</button>
-    </form>
-</mat-card>
+            <input matInput formControlName="password" [type]="showPassword ? 'text' : 'password'"
+                   autocomplete="current-password">
+            <button mat-icon-button matSuffix type="button" (click)="togglePassword()" tabindex="-1">
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+          @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
+            <span class="field-error-msg">Password is required</span>
+          }
+        </div>
+
+        <button mat-flat-button type="submit" class="submit-btn" [disabled]="loginForm.invalid || isLoading">
+          @if (isLoading) {
+            <span>Signing in...</span>
+          } @else {
+            <span>Sign In</span>
+          }
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account? <a routerLink="/account/sign-up">Create one</a>
+      </div>
+    </div>
+  </div>
+</div>

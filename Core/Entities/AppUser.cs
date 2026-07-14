@@ -9,4 +9,7 @@ public class AppUser : IdentityUser
     public string? LastName { get; set; }
 
     public Address? Address { get; set; }
+    public string Language { get; set; } = "en";
+
+    public List<RefreshToken> RefreshTokens { get; set; } = new();
 }

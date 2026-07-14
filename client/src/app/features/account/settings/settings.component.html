@@ -1,0 +1,109 @@
+<div class="settings-page">
+  <div class="settings-container">
+    <div class="settings-header">
+      <h1>Account Settings</h1>
+      <p>Manage your profile, preferences, and account security.</p>
+    </div>
+
+    <!-- Personal Details Section -->
+    <div class="settings-section">
+      <div class="section-header">
+        <mat-icon>person_outline</mat-icon>
+        <h2>Personal Details</h2>
+      </div>
+      
+      <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="settings-form">
+        <div class="form-row">
+          <mat-form-field appearance="fill">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName">
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName">
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Phone Number</mat-label>
+          <input matInput formControlName="phoneNumber" placeholder="+1234567890">
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-flat-button type="submit" class="save-btn" [disabled]="profileForm.invalid || isSavingProfile">
+            @if (isSavingProfile) {
+              <span>Saving...</span>
+            } @else {
+              <span>Save Changes</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Preferences Section -->
+    <div class="settings-section">
+      <div class="section-header">
+        <mat-icon>language</mat-icon>
+        <h2>Preferences</h2>
+      </div>
+      
+      <form [formGroup]="languageForm" (ngSubmit)="updateLanguage()" class="settings-form">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>App Language</mat-label>
+          <mat-select formControlName="language">
+            @for (lang of languages; track lang.code) {
+              <mat-option [value]="lang.code">{{ lang.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-flat-button type="submit" class="save-btn" [disabled]="languageForm.invalid || isSavingLanguage">
+            @if (isSavingLanguage) {
+              <span>Saving...</span>
+            } @else {
+              <span>Update Preferences</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="settings-section danger-zone">
+      <div class="section-header">
+        <mat-icon color="warn">warning</mat-icon>
+        <h2>Danger Zone</h2>
+      </div>
+      
+      <div class="danger-content">
+        <div class="danger-info">
+          <h3>Delete Account</h3>
+          <p>Once you delete your account, there is no going back. Please be certain.</p>
+        </div>
+        
+        @if (!showDeleteConfirm) {
+          <button mat-stroked-button color="warn" (click)="confirmDelete()" class="delete-btn">
+            Delete Account
+          </button>
+        } @else {
+          <div class="confirm-box">
+            <p>Are you absolutely sure?</p>
+            <div class="confirm-actions">
+              <button mat-button (click)="cancelDelete()">Cancel</button>
+              <button mat-flat-button color="warn" (click)="deleteAccount()" [disabled]="isDeleting">
+                @if (isDeleting) {
+                  <span>Deleting...</span>
+                } @else {
+                  <span>Yes, Delete My Account</span>
+                }
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

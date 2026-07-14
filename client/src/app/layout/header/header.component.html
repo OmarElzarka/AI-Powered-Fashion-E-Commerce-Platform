@@ -35,7 +35,7 @@
         </button>
         <mat-menu #menu="matMenu" class="user-menu">
           <div class="menu-header">
-            <span class="menu-email">{{accountService.currentUser()?.email}}</span>
+            <span class="menu-email">{{accountService.currentUser()?.firstName || accountService.currentUser()?.email}}</span>
           </div>
           <mat-divider></mat-divider>
           <button mat-menu-item routerLink="/orders">
@@ -44,15 +44,26 @@
           <button mat-menu-item routerLink="/cart">
             <mat-icon>shopping_bag</mat-icon> My Cart
           </button>
+          <button mat-menu-item routerLink="/account/settings">
+            <mat-icon>settings</mat-icon> Settings
+          </button>
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="logout()">
             <mat-icon>logout</mat-icon> Sign Out
           </button>
         </mat-menu>
       } @else {
-        <a routerLink="/account/login" class="action-btn">
+        <button mat-icon-button [matMenuTriggerFor]="guestMenu" class="action-btn">
           <mat-icon>person_outline</mat-icon>
-        </a>
+        </button>
+        <mat-menu #guestMenu="matMenu" class="user-menu">
+          <button mat-menu-item routerLink="/account/login">
+            <mat-icon>login</mat-icon> Log In
+          </button>
+          <button mat-menu-item routerLink="/account/sign-up">
+            <mat-icon>person_add</mat-icon> Sign Up
+          </button>
+        </mat-menu>
       }
     </div>
   </div>

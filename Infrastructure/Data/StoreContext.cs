@@ -14,6 +14,7 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<AppUser>
     public DbSet<DeliveryMethod> DeliveryMethods { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

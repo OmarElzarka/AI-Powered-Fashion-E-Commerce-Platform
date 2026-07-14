@@ -1,6 +1,6 @@
 /* ================================================================
-   STYLÉ — Login Page
-   Matches sign-up split-screen premium aesthetic
+   STYLÉ — Sign Up Page
+   Split-screen premium fashion aesthetic
    ================================================================ */
 
 .auth-page {
@@ -24,8 +24,8 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 30% 60%, rgba(200,169,126,0.1) 0%, transparent 60%),
-      radial-gradient(ellipse at 70% 30%, rgba(200,169,126,0.06) 0%, transparent 50%);
+      radial-gradient(ellipse at 20% 50%, rgba(200,169,126,0.1) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 30%, rgba(200,169,126,0.06) 0%, transparent 50%);
   }
 }
 
@@ -52,7 +52,7 @@
 
 .visual-title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
   font-weight: 400;
   color: white;
   line-height: 1.2;
@@ -65,6 +65,26 @@
   font-size: 0.95rem;
   color: rgba(255,255,255,0.45);
   line-height: 1.7;
+  margin-bottom: 3rem;
+}
+
+.visual-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.55);
+}
+
+.feature-icon {
+  color: var(--color-secondary);
+  font-size: 0.7rem;
 }
 
 /* Floating orbs */
@@ -74,16 +94,22 @@
   pointer-events: none;
 }
 .orb-1 {
-  width: 250px; height: 250px;
-  bottom: 10%; left: -5%;
+  width: 280px; height: 280px;
+  top: 10%; left: -10%;
   background: radial-gradient(circle, rgba(200,169,126,0.12) 0%, transparent 70%);
-  animation: floatOrb 9s ease-in-out infinite;
+  animation: floatOrb 8s ease-in-out infinite;
 }
 .orb-2 {
-  width: 160px; height: 160px;
-  top: 15%; right: 10%;
+  width: 180px; height: 180px;
+  bottom: 15%; right: 5%;
   background: radial-gradient(circle, rgba(200,169,126,0.08) 0%, transparent 70%);
-  animation: floatOrb 7s ease-in-out infinite reverse;
+  animation: floatOrb 10s ease-in-out infinite reverse;
+}
+.orb-3 {
+  width: 120px; height: 120px;
+  top: 55%; left: 60%;
+  background: radial-gradient(circle, rgba(200,169,126,0.06) 0%, transparent 70%);
+  animation: floatOrb 7s ease-in-out infinite 2s;
 }
 
 @keyframes floatOrb {
@@ -98,17 +124,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem 2rem;
+  padding: 2rem;
+  overflow-y: auto;
   background: var(--color-primary);
 }
 
 .form-container {
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
+  padding: 2rem 0;
 }
 
 .form-header {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 
   h1 {
     font-family: var(--font-display);
@@ -124,34 +152,63 @@
   }
 }
 
-/* ── Inline Error ─────────────────────────────── */
-.login-error {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+/* Server errors */
+.server-errors {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: var(--radius-md);
-  padding: 0.85rem 1rem;
+  padding: 0.75rem 1rem;
   margin-bottom: 1.5rem;
-  color: #f87171;
-  font-size: 0.85rem;
   animation: slideIn 0.3s ease;
+}
+
+.error-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #f87171;
+  font-size: 0.82rem;
+  padding: 0.25rem 0;
 
   mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
   }
 }
 
-/* ── Field Groups ─────────────────────────────── */
+/* ── Form Layout ──────────────────────────────── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
 .field-group {
   position: relative;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 
-  mat-form-field { width: 100%; }
+  &.full { width: 100%; }
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+/* ── Validation Indicators ────────────────────── */
+.field-check {
+  position: absolute;
+  right: 12px;
+  top: 18px;
+  color: var(--color-success);
+  font-size: 0.85rem;
+  font-weight: 700;
+  animation: popIn 0.2s ease;
+  z-index: 1;
+
+  &.phone-check {
+    right: 12px;
+  }
 }
 
 .field-error-msg {
@@ -159,9 +216,14 @@
   font-size: 0.75rem;
   color: #f87171;
   margin-top: -4px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   padding-left: 4px;
   animation: slideIn 0.2s ease;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 @keyframes slideIn {
@@ -203,10 +265,114 @@ mat-form-field {
   }
 }
 
+/* Valid state */
+.field-group.valid mat-form-field {
+  ::ng-deep .mdc-line-ripple::before {
+    border-bottom-color: var(--color-success) !important;
+  }
+}
+
+/* Invalid state */
 .field-group.invalid mat-form-field {
   ::ng-deep .mdc-line-ripple::before {
     border-bottom-color: var(--color-error) !important;
   }
+}
+
+/* ── Password Strength ────────────────────────── */
+.pw-strength {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.pw-bar {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+}
+
+.pw-segment {
+  height: 3px;
+  flex: 1;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  transition: background var(--transition-base);
+
+  &.active { background: var(--color-error); }
+  &.active.strong { background: var(--color-success); }
+}
+
+.pw-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+
+  &.weak { color: var(--color-error); }
+  &.medium { color: var(--color-warning); }
+  &.strong { color: var(--color-success); }
+}
+
+.pw-rules {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.pw-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.3);
+  transition: color var(--transition-fast);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &.met {
+    color: var(--color-success);
+  }
+}
+
+/* ── Phone Input ──────────────────────────────── */
+.phone-input-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.phone-code-field {
+  width: 120px;
+  flex-shrink: 0;
+
+  ::ng-deep .mat-mdc-select-value-text {
+    color: white !important;
+    font-size: 0.9rem;
+  }
+
+  ::ng-deep .mat-mdc-select-arrow {
+    color: rgba(255,255,255,0.3) !important;
+  }
+}
+
+.phone-number-field {
+  flex: 1;
+}
+
+.phone-option {
+  font-size: 0.9rem;
+}
+
+/* ── Country Autocomplete ─────────────────────── */
+::ng-deep .mat-mdc-autocomplete-panel {
+  max-height: 250px;
 }
 
 /* ── Submit Button ────────────────────────────── */
@@ -220,7 +386,7 @@ mat-form-field {
   border-radius: var(--radius-sm) !important;
   background: var(--color-secondary) !important;
   color: var(--color-primary) !important;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   transition: all var(--transition-base) !important;
 
   &:not(:disabled):hover {
@@ -233,6 +399,13 @@ mat-form-field {
     background: rgba(255,255,255,0.06) !important;
     color: rgba(255,255,255,0.2) !important;
   }
+}
+
+.btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 /* ── Footer ───────────────────────────────────── */
@@ -256,12 +429,16 @@ mat-form-field {
 }
 
 /* ── Responsive ───────────────────────────────── */
+@media (max-width: 1024px) {
+  .auth-visual { flex: 0 0 38%; }
+}
+
 @media (max-width: 768px) {
   .auth-page { flex-direction: column; }
 
   .auth-visual {
     flex: none;
-    min-height: 250px;
+    min-height: 280px;
     padding: 2rem;
   }
 
@@ -270,5 +447,11 @@ mat-form-field {
     text-align: center;
   }
 
+  .visual-features { display: none; }
+
   .auth-form-panel { padding: 1.5rem; }
+
+  .form-row { grid-template-columns: 1fr; }
+  
+  .pw-rules { grid-template-columns: 1fr; }
 }

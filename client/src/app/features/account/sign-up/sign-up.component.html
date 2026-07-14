@@ -1,0 +1,235 @@
+<div class="auth-page">
+  <!-- Left Panel: Visual / Branding -->
+  <div class="auth-visual">
+    <div class="visual-content">
+      <!-- Floating orbs -->
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+
+      <a routerLink="/" class="brand-logo">STYLÉ</a>
+      <h2 class="visual-title">Join the <span class="gold">Fashion</span> Revolution</h2>
+      <p class="visual-desc">AI-powered recommendations. Curated collections. Personalized style — all in one place.</p>
+
+      <div class="visual-features">
+        <div class="feature-item">
+          <span class="feature-icon">✦</span>
+          <span>Exclusive member-only collections</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">✦</span>
+          <span>Personalized AI style recommendations</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">✦</span>
+          <span>Early access to new arrivals</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel: Form -->
+  <div class="auth-form-panel">
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Create Account</h1>
+        <p>Start your premium fashion journey</p>
+      </div>
+
+      <!-- Server errors -->
+      @if (serverErrors().length > 0) {
+        <div class="server-errors">
+          @for (err of serverErrors(); track err) {
+            <div class="error-item">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ err }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
+        <!-- Name Row -->
+        <div class="form-row">
+          <div class="field-group" [ngClass]="{'valid': isFieldValid('firstName'), 'invalid': isFieldInvalid('firstName')}">
+            <mat-form-field appearance="fill">
+              <mat-label>First Name</mat-label>
+              <input matInput formControlName="firstName" autocomplete="given-name">
+            </mat-form-field>
+            @if (isFieldValid('firstName')) { <span class="field-check">✓</span> }
+            @if (isFieldInvalid('firstName')) {
+              <span class="field-error-msg">First name is required</span>
+            }
+          </div>
+          <div class="field-group" [ngClass]="{'valid': isFieldValid('lastName'), 'invalid': isFieldInvalid('lastName')}">
+            <mat-form-field appearance="fill">
+              <mat-label>Last Name</mat-label>
+              <input matInput formControlName="lastName" autocomplete="family-name">
+            </mat-form-field>
+            @if (isFieldValid('lastName')) { <span class="field-check">✓</span> }
+            @if (isFieldInvalid('lastName')) {
+              <span class="field-error-msg">Last name is required</span>
+            }
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="field-group full" [ngClass]="{'valid': isFieldValid('email'), 'invalid': isFieldInvalid('email')}">
+          <mat-form-field appearance="fill">
+            <mat-label>Email Address</mat-label>
+            <input matInput formControlName="email" type="email" autocomplete="email">
+          </mat-form-field>
+          @if (isFieldValid('email')) { <span class="field-check">✓</span> }
+          @if (signUpForm.get('email')?.touched && signUpForm.get('email')?.hasError('required')) {
+            <span class="field-error-msg">Email is required</span>
+          } @else if (signUpForm.get('email')?.touched && signUpForm.get('email')?.hasError('email')) {
+            <span class="field-error-msg">Please enter a valid email</span>
+          } @else if (signUpForm.get('email')?.hasError('emailExists')) {
+            <span class="field-error-msg">This email is already registered</span>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="field-group full" [ngClass]="{'valid': isFieldValid('password'), 'invalid': isFieldInvalid('password')}">
+          <mat-form-field appearance="fill">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" [type]="showPassword ? 'text' : 'password'" autocomplete="new-password">
+            <button mat-icon-button matSuffix type="button" (click)="togglePassword()" tabindex="-1">
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <!-- Password strength indicator -->
+        @if (pw.dirty) {
+          <div class="pw-strength">
+            <div class="pw-bar">
+              @for (i of [0,1,2,3,4]; track i) {
+                <div class="pw-segment" [ngClass]="{'active': pwStrength > i, 'strong': pwStrength >= 4}"></div>
+              }
+            </div>
+            <span class="pw-label" [ngClass]="{'weak': pwStrength <= 2, 'medium': pwStrength === 3, 'strong': pwStrength >= 4}">
+              {{ pwStrength <= 2 ? 'Weak' : pwStrength === 3 ? 'Medium' : pwStrength === 4 ? 'Strong' : 'Very Strong' }}
+            </span>
+          </div>
+          <div class="pw-rules">
+            @for (rule of pwRules; track rule.label) {
+              <div class="pw-rule" [ngClass]="{'met': rule.valid}">
+                <mat-icon>{{ rule.valid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <span>{{ rule.label }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Confirm Password -->
+        <div class="field-group full" [ngClass]="{'valid': signUpForm.get('confirmPassword')?.valid && signUpForm.get('confirmPassword')?.dirty && !signUpForm.hasError('mismatch'), 'invalid': signUpForm.get('confirmPassword')?.touched && (signUpForm.get('confirmPassword')?.invalid || signUpForm.hasError('mismatch'))}">
+          <mat-form-field appearance="fill">
+            <mat-label>Confirm Password</mat-label>
+            <input matInput formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" autocomplete="new-password">
+            <button mat-icon-button matSuffix type="button" (click)="toggleConfirmPassword()" tabindex="-1">
+              <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+          @if (signUpForm.get('confirmPassword')?.valid && signUpForm.get('confirmPassword')?.dirty && !signUpForm.hasError('mismatch')) {
+            <span class="field-check">✓</span>
+          }
+          @if (signUpForm.get('confirmPassword')?.touched && signUpForm.hasError('mismatch')) {
+            <span class="field-error-msg">Passwords do not match</span>
+          }
+        </div>
+
+        <!-- Phone -->
+        <div class="field-group full" [ngClass]="{'valid': isFieldValid('phoneNumber'), 'invalid': isFieldInvalid('phoneNumber')}">
+          <div class="phone-input-wrapper">
+            <div class="phone-code-select">
+              <mat-form-field appearance="fill" class="phone-code-field">
+                <mat-select [value]="selectedPhoneCode()" (selectionChange)="selectPhoneCode($event.value)">
+                  @for (code of phoneCodes; track code.code) {
+                    <mat-option [value]="code">
+                      <span class="phone-option">{{ code.flag }} {{ code.dialCode }}</span>
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <mat-form-field appearance="fill" class="phone-number-field">
+              <mat-label>Phone Number</mat-label>
+              <input matInput formControlName="phoneNumber" type="tel" autocomplete="tel-national"
+                     placeholder="1012345678">
+            </mat-form-field>
+          </div>
+          @if (isFieldValid('phoneNumber')) { <span class="field-check phone-check">✓</span> }
+          @if (isFieldInvalid('phoneNumber')) {
+            <span class="field-error-msg">Enter a valid phone number (digits only)</span>
+          }
+        </div>
+
+        <!-- Address: Line 1 -->
+        <div class="field-group full" [ngClass]="{'valid': isFieldValid('line1'), 'invalid': isFieldInvalid('line1')}">
+          <mat-form-field appearance="fill">
+            <mat-label>Street Address</mat-label>
+            <input matInput formControlName="line1" autocomplete="address-line1">
+          </mat-form-field>
+          @if (isFieldValid('line1')) { <span class="field-check">✓</span> }
+          @if (isFieldInvalid('line1')) {
+            <span class="field-error-msg">Street address is required</span>
+          }
+        </div>
+
+        <!-- City + Country -->
+        <div class="form-row">
+          <div class="field-group" [ngClass]="{'valid': isFieldValid('city'), 'invalid': isFieldInvalid('city')}">
+            <mat-form-field appearance="fill">
+              <mat-label>City</mat-label>
+              <input matInput formControlName="city" autocomplete="address-level2">
+            </mat-form-field>
+            @if (isFieldValid('city')) { <span class="field-check">✓</span> }
+            @if (isFieldInvalid('city')) {
+              <span class="field-error-msg">City is required</span>
+            }
+          </div>
+          <div class="field-group" [ngClass]="{'valid': isFieldValid('postalCode'), 'invalid': isFieldInvalid('postalCode')}">
+            <mat-form-field appearance="fill">
+              <mat-label>Postal Code</mat-label>
+              <input matInput formControlName="postalCode" autocomplete="postal-code">
+            </mat-form-field>
+            @if (isFieldValid('postalCode')) { <span class="field-check">✓</span> }
+            @if (isFieldInvalid('postalCode')) {
+              <span class="field-error-msg">Postal code is required</span>
+            }
+          </div>
+        </div>
+
+        <!-- Country Autocomplete -->
+        <div class="field-group full" [ngClass]="{'valid': isFieldValid('country'), 'invalid': isFieldInvalid('country')}">
+          <mat-form-field appearance="fill">
+            <mat-label>Country</mat-label>
+            <input matInput formControlName="country" [matAutocomplete]="countryAuto" autocomplete="country-name">
+            <mat-autocomplete #countryAuto="matAutocomplete" (optionSelected)="selectCountry($event.option.value)">
+              @for (c of filteredCountries; track c) {
+                <mat-option [value]="c">{{ c }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+          @if (isFieldValid('country')) { <span class="field-check">✓</span> }
+          @if (isFieldInvalid('country')) {
+            <span class="field-error-msg">Country is required</span>
+          }
+        </div>
+
+        <button mat-flat-button type="submit" class="submit-btn" [disabled]="signUpForm.invalid || isLoading">
+          @if (isLoading) {
+            <span class="btn-loading">Creating Account...</span>
+          } @else {
+            <span>Create Account</span>
+          }
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a routerLink="/account/login">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>
