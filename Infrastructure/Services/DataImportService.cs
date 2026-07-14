@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Text.Json;
+using System.Text;
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
@@ -12,6 +12,35 @@ namespace Infrastructure.Services;
 
 public class DataImportService(StoreContext context, ILogger<DataImportService> logger) : IDataImportService
 {
+    // CSV column indices for products_for_ai.csv
+    private const int COL_ID = 0;
+    private const int COL_IMAGE_PATH = 1;
+    private const int COL_JSON_PATH = 2;
+    private const int COL_PRODUCT_NAME = 3;
+    private const int COL_BRAND = 4;
+    private const int COL_MASTER_CATEGORY = 5;
+    private const int COL_SUBCATEGORY = 6;
+    private const int COL_ARTICLE_TYPE = 7;
+    private const int COL_GENDER = 8;
+    private const int COL_AGE_GROUP = 9;
+    private const int COL_BASE_COLOR = 10;
+    private const int COL_SEASON = 11;
+    private const int COL_USAGE = 12;
+    private const int COL_YEAR = 13;
+    private const int COL_PATTERN = 14;
+    private const int COL_MATERIAL = 15;
+    private const int COL_FIT = 16;
+    private const int COL_NECK = 17;
+    private const int COL_SLEEVE = 18;
+    private const int COL_OCCASION = 19;
+    private const int COL_PRICE = 20;
+    private const int COL_DISCOUNTED_PRICE = 21;
+    private const int COL_FASHION_TYPE = 22;
+    private const int COL_DISPLAY_CATEGORIES = 23;
+    private const int COL_DESCRIPTION = 24;
+    private const int COL_SEARCH_TEXT = 25;
+    private const int EXPECTED_COLUMNS = 26;
+
     public async Task<DataImportResult> ImportFromDatasetAsync(string datasetBasePath, string targetImagePath)
     {
         var sw = Stopwatch.StartNew();
@@ -19,45 +48,47 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
 
         try
         {
-            var stylesPath = Path.Combine(datasetBasePath, "styles.csv");
-            var stylesDir = Path.Combine(datasetBasePath, "styles");
-            var imagesDir = Path.Combine(datasetBasePath, "images");
+            var csvPath = Path.Combine(datasetBasePath, "products_for_ai.csv");
 
-            if (!File.Exists(stylesPath))
+            if (!File.Exists(csvPath))
             {
-                result.Errors.Add($"styles.csv not found at {stylesPath}");
+                logger.LogWarning("products_for_ai.csv not found at {Path}, trying styles.csv fallback", csvPath);
+                result.Errors.Add($"products_for_ai.csv not found at {csvPath}");
                 return result;
             }
 
-            // Ensure target image directory exists
-            Directory.CreateDirectory(targetImagePath);
+            logger.LogInformation("Starting import from {Path}", csvPath);
 
             // Get existing product IDs to avoid duplicates
             var existingIds = await context.Products.Select(p => p.Id).ToHashSetAsync();
 
-            // Read CSV lines
-            var lines = await File.ReadAllLinesAsync(stylesPath);
+            // Read and parse CSV
+            var csvContent = await File.ReadAllTextAsync(csvPath);
+            var records = ParseCsv(csvContent);
             var products = new List<Product>();
             var random = new Random(42); // Deterministic seed for reproducibility
 
-            // Skip header
-            for (int i = 1; i < lines.Length; i++)
+            // Skip header (index 0)
+            for (int i = 1; i < records.Count; i++)
             {
                 try
                 {
                     result.TotalProcessed++;
-                    var row = ParseCsvLine(lines[i]);
+                    var row = records[i];
 
-                    if (row.Length < 10)
+                    if (row.Length < EXPECTED_COLUMNS)
                     {
                         result.Failed++;
-                        result.Errors.Add($"Line {i}: insufficient columns ({row.Length})");
+                        if (result.Errors.Count < 50)
+                            result.Errors.Add($"Record {i}: insufficient columns ({row.Length}, expected {EXPECTED_COLUMNS})");
                         continue;
                     }
 
-                    if (!int.TryParse(row[0], out var id))
+                    if (!int.TryParse(row[COL_ID], out var id))
                     {
                         result.Failed++;
+                        if (result.Errors.Count < 50)
+                            result.Errors.Add($"Record {i}: invalid ID '{row[COL_ID]}'");
                         continue;
                     }
 
@@ -67,54 +98,55 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
                         continue;
                     }
 
-                    // Check if image exists
-                    var sourceImage = Path.Combine(imagesDir, $"{id}.jpg");
-                    if (!File.Exists(sourceImage))
+                    var productName = Clean(row[COL_PRODUCT_NAME]);
+                    if (string.IsNullOrEmpty(productName))
                     {
-                        result.Skipped++;
+                        result.Failed++;
                         continue;
                     }
 
-                    // Copy image to target
-                    var targetImage = Path.Combine(targetImagePath, $"{id}.jpg");
-                    if (!File.Exists(targetImage))
+                    // Parse price fields
+                    var price = ParseDecimal(row[COL_PRICE]);
+                    var discountedPrice = ParseDecimal(row[COL_DISCOUNTED_PRICE]);
+
+                    // Calculate discount percentage
+                    decimal discountPercentage = 0;
+                    if (price > 0 && discountedPrice > 0 && discountedPrice < price)
                     {
-                        File.Copy(sourceImage, targetImage, false);
+                        discountPercentage = Math.Round((price - discountedPrice) / price * 100, 2);
                     }
 
-                    // Parse JSON for enriched metadata
-                    var jsonPath = Path.Combine(stylesDir, $"{id}.json");
-                    var jsonData = await ReadJsonMetadata(jsonPath);
+                    // Build tags from display_categories + article type + color + season
+                    var tags = BuildTags(row);
 
-                    // Build product from CSV + JSON
                     var product = new Product
                     {
                         Id = id,
-                        Name = CleanString(row[9]), // productDisplayName
-                        Description = jsonData.Description,
-                        Brand = jsonData.BrandName ?? CleanString(ExtractBrandFromName(row[9])),
-                        Category = CleanString(row[2]), // masterCategory
-                        SubCategory = CleanString(row[3]),
-                        ArticleType = CleanString(row[4]),
-                        Gender = MapGender(CleanString(row[1])),
-                        AgeGroup = jsonData.AgeGroup ?? "",
-                        BaseColor = CleanString(row[5]),
-                        Season = CleanString(row[6]),
-                        Usage = CleanString(row[8]),
-                        Material = jsonData.Material,
-                        Pattern = jsonData.Pattern,
-                        Fit = jsonData.Fit,
-                        StyleType = jsonData.StyleType,
-                        FashionType = jsonData.FashionType,
-                        Year = ParseYear(row[7]),
-                        Price = jsonData.Price > 0 ? jsonData.Price : GeneratePrice(row[2], random),
-                        DiscountPercentage = jsonData.DiscountPercent,
-                        Rating = jsonData.Rating > 0 ? jsonData.Rating : GenerateRating(random),
-                        ImageUrl = $"/assets/products/{id}.jpg",
-                        FrontImageUrl = "", // Not stored locally
+                        Name = productName,
+                        Description = CleanDescription(row[COL_DESCRIPTION]),
+                        Brand = Clean(row[COL_BRAND]),
+                        Category = Clean(row[COL_MASTER_CATEGORY]),
+                        SubCategory = Clean(row[COL_SUBCATEGORY]),
+                        ArticleType = Clean(row[COL_ARTICLE_TYPE]),
+                        Gender = MapGender(Clean(row[COL_GENDER])),
+                        AgeGroup = Clean(row[COL_AGE_GROUP]),
+                        BaseColor = Clean(row[COL_BASE_COLOR]),
+                        Season = Clean(row[COL_SEASON]),
+                        Usage = Clean(row[COL_USAGE]),
+                        Material = Clean(row[COL_MATERIAL]),
+                        Pattern = Clean(row[COL_PATTERN]),
+                        Fit = Clean(row[COL_FIT]),
+                        StyleType = Clean(row[COL_OCCASION]),
+                        FashionType = Clean(row[COL_FASHION_TYPE]),
+                        Year = ParseYear(row[COL_YEAR]),
+                        Price = price > 0 ? price : GeneratePrice(Clean(row[COL_MASTER_CATEGORY]), random),
+                        DiscountPercentage = discountPercentage,
+                        Rating = GenerateRating(random),
+                        ImageUrl = $"/images/{id}.jpg",
+                        FrontImageUrl = "",
                         BackImageUrl = "",
                         SearchImageUrl = "",
-                        Tags = GenerateTags(row),
+                        Tags = tags,
                         IsFeatured = random.NextDouble() > 0.85, // ~15% featured
                         IsNewArrival = random.NextDouble() > 0.80, // ~20% new arrivals
                         QuantityInStock = random.Next(5, 100),
@@ -130,14 +162,15 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
                     {
                         await BatchInsert(products);
                         products.Clear();
+                        logger.LogInformation("Batch inserted. Progress: {Imported} imported so far", result.Imported);
                     }
                 }
                 catch (Exception ex)
                 {
                     result.Failed++;
-                    if (result.Errors.Count < 50) // Cap error messages
+                    if (result.Errors.Count < 50)
                     {
-                        result.Errors.Add($"Line {i}: {ex.Message}");
+                        result.Errors.Add($"Record {i}: {ex.Message}");
                     }
                 }
             }
@@ -164,11 +197,21 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
 
     private async Task BatchInsert(List<Product> products)
     {
-        // Use identity insert for explicit IDs
-        await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT Products ON");
-        context.Products.AddRange(products);
-        await context.SaveChangesAsync();
-        await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT Products OFF");
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        try
+        {
+            // Use identity insert for explicit IDs
+            await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT Products ON");
+            context.Products.AddRange(products);
+            await context.SaveChangesAsync();
+            await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT Products OFF");
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
 
         // Detach all to free memory
         foreach (var entity in context.ChangeTracker.Entries().ToList())
@@ -177,114 +220,117 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
         }
     }
 
-    private static string[] ParseCsvLine(string line)
+    /// <summary>
+    /// Parses a full CSV string into a list of string arrays, handling quoted fields
+    /// that may contain commas, newlines, and escaped quotes.
+    /// </summary>
+    private static List<string[]> ParseCsv(string content)
     {
+        var records = new List<string[]>();
         var fields = new List<string>();
+        var current = new StringBuilder();
         bool inQuotes = false;
-        var current = new System.Text.StringBuilder();
+        int i = 0;
 
-        for (int i = 0; i < line.Length; i++)
+        while (i < content.Length)
         {
-            if (line[i] == '"')
+            char c = content[i];
+
+            if (inQuotes)
             {
-                inQuotes = !inQuotes;
-            }
-            else if (line[i] == ',' && !inQuotes)
-            {
-                fields.Add(current.ToString().Trim());
-                current.Clear();
+                if (c == '"')
+                {
+                    // Check for escaped quote ""
+                    if (i + 1 < content.Length && content[i + 1] == '"')
+                    {
+                        current.Append('"');
+                        i += 2;
+                        continue;
+                    }
+                    else
+                    {
+                        inQuotes = false;
+                        i++;
+                        continue;
+                    }
+                }
+                else
+                {
+                    current.Append(c);
+                    i++;
+                }
             }
             else
             {
-                current.Append(line[i]);
-            }
-        }
-        fields.Add(current.ToString().Trim());
-        return fields.ToArray();
-    }
-
-    private async Task<JsonMetadata> ReadJsonMetadata(string jsonPath)
-    {
-        var meta = new JsonMetadata();
-
-        if (!File.Exists(jsonPath)) return meta;
-
-        try
-        {
-            var json = await File.ReadAllTextAsync(jsonPath);
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
-
-            if (root.TryGetProperty("data", out var data))
-            {
-                meta.BrandName = GetStringOrDefault(data, "brandName");
-                meta.AgeGroup = GetStringOrDefault(data, "ageGroup");
-                meta.StyleType = GetStringOrDefault(data, "styleType");
-                meta.FashionType = GetStringOrDefault(data, "fashionType");
-
-                if (data.TryGetProperty("price", out var priceProp) && priceProp.ValueKind == JsonValueKind.Number)
+                if (c == '"')
                 {
-                    meta.Price = priceProp.GetDecimal();
+                    inQuotes = true;
+                    i++;
                 }
-
-                if (data.TryGetProperty("myntraRating", out var ratingProp) && ratingProp.ValueKind == JsonValueKind.Number)
+                else if (c == ',')
                 {
-                    meta.Rating = ratingProp.GetDouble();
-                    if (meta.Rating <= 0 || meta.Rating > 5) meta.Rating = 0;
+                    fields.Add(current.ToString().Trim());
+                    current.Clear();
+                    i++;
                 }
-
-                if (data.TryGetProperty("discountData", out var discountData) &&
-                    discountData.TryGetProperty("discountPercent", out var discountPct) &&
-                    discountPct.ValueKind == JsonValueKind.Number)
+                else if (c == '\n' || (c == '\r' && i + 1 < content.Length && content[i + 1] == '\n'))
                 {
-                    meta.DiscountPercent = discountPct.GetDecimal();
+                    fields.Add(current.ToString().Trim());
+                    current.Clear();
+                    records.Add(fields.ToArray());
+                    fields.Clear();
+
+                    if (c == '\r') i += 2; // skip \r\n
+                    else i++; // skip \n
                 }
-
-                // Article attributes
-                if (data.TryGetProperty("articleAttributes", out var attrs))
+                else if (c == '\r')
                 {
-                    meta.Pattern = GetStringOrDefault(attrs, "Pattern");
-                    meta.Material = GetStringOrDefault(attrs, "Fabric");
-                    meta.Fit = GetStringOrDefault(attrs, "Shape");
+                    // standalone \r
+                    fields.Add(current.ToString().Trim());
+                    current.Clear();
+                    records.Add(fields.ToArray());
+                    fields.Clear();
+                    i++;
                 }
-
-                // Description
-                if (data.TryGetProperty("productDescriptors", out var descriptors) &&
-                    descriptors.TryGetProperty("description", out var desc) &&
-                    desc.TryGetProperty("value", out var descValue))
+                else
                 {
-                    meta.Description = StripHtml(descValue.GetString() ?? "");
+                    current.Append(c);
+                    i++;
                 }
             }
         }
-        catch
+
+        // Handle last field/record
+        if (current.Length > 0 || fields.Count > 0)
         {
-            // Silently skip malformed JSON
+            fields.Add(current.ToString().Trim());
+            records.Add(fields.ToArray());
         }
 
-        return meta;
+        return records;
     }
 
-    private static string GetStringOrDefault(JsonElement element, string property)
+    private static string Clean(string value)
     {
-        if (element.TryGetProperty(property, out var prop) && prop.ValueKind == JsonValueKind.String)
-        {
-            return prop.GetString() ?? "";
-        }
-        return "";
+        if (string.IsNullOrWhiteSpace(value) || value.Equals("nan", StringComparison.OrdinalIgnoreCase))
+            return "";
+        return value.Trim();
     }
 
-    private static string StripHtml(string html)
+    private static string CleanDescription(string value)
     {
-        if (string.IsNullOrEmpty(html)) return "";
-        var text = System.Text.RegularExpressions.Regex.Replace(html, "<.*?>", " ");
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " ");
-        return text.Trim();
-    }
+        var cleaned = Clean(value);
+        if (string.IsNullOrEmpty(cleaned)) return "";
 
-    private static string CleanString(string value)
-    {
-        return string.IsNullOrWhiteSpace(value) ? "" : value.Trim();
+        // Strip any residual HTML tags
+        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, "<.*?>", " ");
+        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"\s+", " ");
+
+        // Truncate to fit DB column (2000 chars max)
+        if (cleaned.Length > 1900)
+            cleaned = cleaned[..1900] + "...";
+
+        return cleaned.Trim();
     }
 
     private static string MapGender(string gender)
@@ -309,11 +355,13 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
         return 2020;
     }
 
-    private static string ExtractBrandFromName(string name)
+    private static decimal ParseDecimal(string value)
     {
-        if (string.IsNullOrEmpty(name)) return "Unknown";
-        var parts = name.Split(' ');
-        return parts.Length > 0 ? parts[0] : "Unknown";
+        if (string.IsNullOrWhiteSpace(value) || value.Equals("nan", StringComparison.OrdinalIgnoreCase))
+            return 0;
+        if (decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
+            return result;
+        return 0;
     }
 
     private static decimal GeneratePrice(string category, Random random)
@@ -323,6 +371,7 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
             "Accessories" => Math.Round((decimal)(random.NextDouble() * 50 + 10), 2),
             "Footwear" => Math.Round((decimal)(random.NextDouble() * 150 + 30), 2),
             "Apparel" => Math.Round((decimal)(random.NextDouble() * 200 + 20), 2),
+            "Personal Care" => Math.Round((decimal)(random.NextDouble() * 40 + 5), 2),
             _ => Math.Round((decimal)(random.NextDouble() * 100 + 15), 2)
         };
     }
@@ -332,29 +381,41 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
         return Math.Round(random.NextDouble() * 2 + 3, 1); // 3.0 to 5.0
     }
 
-    private static string GenerateTags(string[] row)
+    private static string BuildTags(string[] row)
     {
         var tags = new List<string>();
-        if (row.Length > 2 && !string.IsNullOrEmpty(row[2])) tags.Add(row[2]); // category
-        if (row.Length > 4 && !string.IsNullOrEmpty(row[4])) tags.Add(row[4]); // articleType
-        if (row.Length > 5 && !string.IsNullOrEmpty(row[5])) tags.Add(row[5]); // color
-        if (row.Length > 6 && !string.IsNullOrEmpty(row[6])) tags.Add(row[6]); // season
-        if (row.Length > 8 && !string.IsNullOrEmpty(row[8])) tags.Add(row[8]); // usage
-        return string.Join(",", tags.Where(t => !string.IsNullOrWhiteSpace(t)));
-    }
 
-    private class JsonMetadata
-    {
-        public string BrandName { get; set; } = "";
-        public string AgeGroup { get; set; } = "";
-        public string StyleType { get; set; } = "";
-        public string FashionType { get; set; } = "";
-        public decimal Price { get; set; }
-        public double Rating { get; set; }
-        public decimal DiscountPercent { get; set; }
-        public string Pattern { get; set; } = "";
-        public string Material { get; set; } = "";
-        public string Fit { get; set; } = "";
-        public string Description { get; set; } = "";
+        // Add display_categories (may be comma-separated already like "Sports Wear,Winterwear")
+        var displayCats = Clean(row[COL_DISPLAY_CATEGORIES]);
+        if (!string.IsNullOrEmpty(displayCats))
+        {
+            tags.AddRange(displayCats.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(t => t.Trim()));
+        }
+
+        // Add article type, color, season, usage as tags
+        var articleType = Clean(row[COL_ARTICLE_TYPE]);
+        if (!string.IsNullOrEmpty(articleType) && !tags.Contains(articleType))
+            tags.Add(articleType);
+
+        var color = Clean(row[COL_BASE_COLOR]);
+        if (!string.IsNullOrEmpty(color) && !tags.Contains(color))
+            tags.Add(color);
+
+        var season = Clean(row[COL_SEASON]);
+        if (!string.IsNullOrEmpty(season) && !tags.Contains(season))
+            tags.Add(season);
+
+        var usage = Clean(row[COL_USAGE]);
+        if (!string.IsNullOrEmpty(usage) && !tags.Contains(usage))
+            tags.Add(usage);
+
+        var result = string.Join(",", tags.Where(t => !string.IsNullOrWhiteSpace(t)));
+
+        // Truncate to fit DB column (1000 chars max)
+        if (result.Length > 990)
+            result = result[..990];
+
+        return result;
     }
 }

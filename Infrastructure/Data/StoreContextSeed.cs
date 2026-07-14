@@ -11,7 +11,7 @@ namespace Infrastructure.Data;
 public class StoreContextSeed
 {
     public static async Task SeedAsync(StoreContext context, UserManager<AppUser> userManager,
-        IDataImportService dataImportService, ILogger logger, string webRootPath)
+        IDataImportService dataImportService, IResponseCacheService responseCacheService, ILogger logger, string webRootPath)
     {
         if (!userManager.Users.Any(x => x.UserName == "admin@test.com"))
         {
@@ -59,6 +59,10 @@ public class StoreContextSeed
                     logger.LogWarning("Import issue: {Error}", error);
                 }
             }
+
+            // Clear Redis cache so any cached empty results from before seeding are removed
+            logger.LogInformation("Clearing product cache...");
+            await responseCacheService.RemoveCacheByPattern("api/products|");
         }
     }
 }

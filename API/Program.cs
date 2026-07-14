@@ -82,9 +82,10 @@ try
     var context = services.GetRequiredService<StoreContext>();
     var userManager = services.GetRequiredService<UserManager<AppUser>>();
     var dataImportService = services.GetRequiredService<IDataImportService>();
+    var cacheService = services.GetRequiredService<IResponseCacheService>();
     var logger = services.GetRequiredService<ILogger<Program>>();
     await context.Database.MigrateAsync();
-    await StoreContextSeed.SeedAsync(context, userManager, dataImportService, logger,
+    await StoreContextSeed.SeedAsync(context, userManager, dataImportService, cacheService, logger,
         app.Environment.WebRootPath);
 }
 catch (Exception e)
