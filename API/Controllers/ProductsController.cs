@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class ProductsController(IProductService productService) : BaseApiController
+public class ProductsController(IProductService productService, IRecommendationService recommendationService) : BaseApiController
 {
     [Cached(100000)]
     [HttpGet]
@@ -154,6 +154,14 @@ public class ProductsController(IProductService productService) : BaseApiControl
     public async Task<ActionResult<IReadOnlyList<ProductDto>>> GetSimilar(int id, [FromQuery] int count = 6)
     {
         var products = await productService.GetSimilarProductsAsync(id, count);
+        return Ok(products.Select(p => p.ToDto()).ToList());
+    }
+
+    [Cached(100000)]
+    [HttpGet("{id:int}/recommendations")]
+    public async Task<ActionResult<IReadOnlyList<ProductDto>>> GetRecommendations(int id, [FromQuery] int count = 5)
+    {
+        var products = await recommendationService.GetRecommendationsAsync(id, count);
         return Ok(products.Select(p => p.ToDto()).ToList());
     }
 }

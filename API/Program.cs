@@ -36,8 +36,20 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDataImportService, DataImportService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
+builder.Services.AddHttpClient<IModelDownloaderService, ModelDownloaderService>();
+builder.Services.AddSingleton<ITextEmbeddingService>(sp => 
+{
+    var env = sp.GetRequiredService<IWebHostEnvironment>();
+    var modelPath = Path.Combine(env.ContentRootPath, "assets", "models", "model.onnx");
+    var vocabPath = Path.Combine(env.ContentRootPath, "assets", "models", "vocab.txt");
+    return new TextEmbeddingService(modelPath, vocabPath);
+});
 
 // AI Services (future-ready)
+builder.Services.AddSingleton<RecommendationService>();
+builder.Services.AddSingleton<IRecommendationService>(sp => sp.GetRequiredService<RecommendationService>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<RecommendationService>());
+
 builder.Services.AddScoped<IAIRecommendationService, AIRecommendationService>();
 builder.Services.AddScoped<IAIStylistService, AIStylistService>();
 builder.Services.AddScoped<IAIShoppingAgentService, AIShoppingAgentService>();
@@ -110,9 +122,14 @@ try
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<StoreContext>();
     var userManager = services.GetRequiredService<UserManager<AppUser>>();
-    var dataImportService = services.GetRequiredService<IDataImportService>();
     var cacheService = services.GetRequiredService<IResponseCacheService>();
     var logger = services.GetRequiredService<ILogger<Program>>();
+    
+    var modelDownloader = services.GetRequiredService<IModelDownloaderService>();
+    await modelDownloader.EnsureModelsDownloadedAsync(Path.Combine(builder.Environment.ContentRootPath, "assets", "models"));
+
+    var dataImportService = services.GetRequiredService<IDataImportService>();
+
     await context.Database.MigrateAsync();
     await StoreContextSeed.SeedAsync(context, userManager, dataImportService, cacheService, logger,
         Path.Combine(builder.Environment.ContentRootPath, "Data", "SeedData"));

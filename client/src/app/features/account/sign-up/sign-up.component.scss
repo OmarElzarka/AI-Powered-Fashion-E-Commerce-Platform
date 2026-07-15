@@ -4,14 +4,20 @@
    ================================================================ */
 
 :host {
-  --color-boho-bg: #fdfaf6; /* Warm off-white */
+  --color-boho-bg: #fdfaf6;
+  /* Warm off-white */
   --color-boho-surface: #ffffff;
-  --color-boho-border: #e8dcc8; /* Warm ivory/sand */
-  --color-boho-primary: #c97046; /* Rust red/marigold */
+  --color-boho-border: #e8dcc8;
+  /* Warm ivory/sand */
+  --color-boho-primary: #c97046;
+  /* Rust red/marigold */
   --color-boho-primary-hover: #b05c36;
-  --color-boho-text: #2a3d45; /* Deep navy/slate */
-  --color-boho-text-muted: #7c8e90; /* Sage green tint */
-  --color-boho-accent: #d89b4e; /* Mustard yellow */
+  --color-boho-text: #2a3d45;
+  /* Deep navy/slate */
+  --color-boho-text-muted: #7c8e90;
+  /* Sage green tint */
+  --color-boho-accent: #d89b4e;
+  /* Mustard yellow */
 }
 
 .auth-page {
@@ -32,7 +38,7 @@
   background-image: url('/images/sideimage2.jpg');
   background-size: cover;
   background-position: center;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -59,7 +65,9 @@
   margin-bottom: 3rem;
   transition: color var(--transition-base);
 
-  &:hover { color: var(--color-secondary); }
+  &:hover {
+    color: var(--color-secondary);
+  }
 }
 
 .visual-title {
@@ -71,15 +79,16 @@
   margin: 0 0 1.25rem;
 }
 
-.gold { 
-  font-style: italic; 
+.gold {
+  font-style: italic;
   font-weight: 400;
-  color: #fce6c5; /* Soft marigold */
+  color: #fce6c5;
+  /* Soft marigold */
 }
 
 .visual-desc {
   font-size: 0.95rem;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   line-height: 1.7;
   margin-bottom: 3rem;
 }
@@ -95,7 +104,7 @@
   align-items: center;
   gap: 0.75rem;
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .feature-icon {
@@ -109,29 +118,48 @@
   border-radius: 50%;
   pointer-events: none;
 }
+
 .orb-1 {
-  width: 280px; height: 280px;
-  top: 10%; left: -10%;
-  background: radial-gradient(circle, rgba(200,169,126,0.12) 0%, transparent 70%);
+  width: 280px;
+  height: 280px;
+  top: 10%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(200, 169, 126, 0.12) 0%, transparent 70%);
   animation: floatOrb 8s ease-in-out infinite;
 }
+
 .orb-2 {
-  width: 180px; height: 180px;
-  bottom: 15%; right: 5%;
-  background: radial-gradient(circle, rgba(200,169,126,0.08) 0%, transparent 70%);
+  width: 180px;
+  height: 180px;
+  bottom: 15%;
+  right: 5%;
+  background: radial-gradient(circle, rgba(200, 169, 126, 0.08) 0%, transparent 70%);
   animation: floatOrb 10s ease-in-out infinite reverse;
 }
+
 .orb-3 {
-  width: 120px; height: 120px;
-  top: 55%; left: 60%;
-  background: radial-gradient(circle, rgba(200,169,126,0.06) 0%, transparent 70%);
+  width: 120px;
+  height: 120px;
+  top: 55%;
+  left: 60%;
+  background: radial-gradient(circle, rgba(200, 169, 126, 0.06) 0%, transparent 70%);
   animation: floatOrb 7s ease-in-out infinite 2s;
 }
 
 @keyframes floatOrb {
-  0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(15px, -20px); }
-  66% { transform: translate(-10px, 12px); }
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  33% {
+    transform: translate(15px, -20px);
+  }
+
+  66% {
+    transform: translate(-10px, 12px);
+  }
 }
 
 /* ── Right Form Panel ─────────────────────────── */
@@ -210,7 +238,9 @@
   position: relative;
   margin-bottom: 0.25rem;
 
-  &.full { width: 100%; }
+  &.full {
+    width: 100%;
+  }
 
   mat-form-field {
     width: 100%;
@@ -244,13 +274,27 @@
 }
 
 @keyframes popIn {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes slideIn {
-  0% { transform: translateY(-4px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+  0% {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ── Material Input Overrides ─────────────────── */
@@ -276,7 +320,7 @@ mat-form-field {
   }
 
   ::ng-deep .mdc-line-ripple::before {
-    border-bottom-color: rgba(0,0,0,0.12) !important;
+    border-bottom-color: rgba(0, 0, 0, 0.12) !important;
   }
 
   ::ng-deep .mdc-line-ripple::after {
@@ -319,12 +363,17 @@ mat-form-field {
 .pw-segment {
   height: 3px;
   flex: 1;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
   transition: background var(--transition-base);
 
-  &.active { background: var(--color-error); }
-  &.active.strong { background: var(--color-success); }
+  &.active {
+    background: var(--color-error);
+  }
+
+  &.active.strong {
+    background: var(--color-success);
+  }
 }
 
 .pw-label {
@@ -333,9 +382,17 @@ mat-form-field {
   text-transform: uppercase;
   letter-spacing: 0.1em;
 
-  &.weak { color: var(--color-error); }
-  &.medium { color: var(--color-warning); }
-  &.strong { color: var(--color-success); }
+  &.weak {
+    color: var(--color-error);
+  }
+
+  &.medium {
+    color: var(--color-warning);
+  }
+
+  &.strong {
+    color: var(--color-success);
+  }
 }
 
 .pw-rules {
@@ -350,7 +407,7 @@ mat-form-field {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.72rem;
-  color: rgba(0,0,0,0.4);
+  color: rgba(0, 0, 0, 0.4);
   transition: color var(--transition-fast);
 
   mat-icon {
@@ -381,7 +438,7 @@ mat-form-field {
   }
 
   ::ng-deep .mat-mdc-select-arrow {
-    color: rgba(255,255,255,0.3) !important;
+    color: rgba(255, 255, 255, 0.3) !important;
   }
 }
 
@@ -420,7 +477,7 @@ mat-form-field {
 
   &:disabled {
     background: var(--color-boho-border) !important;
-    color: rgba(255,255,255,0.7) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
     box-shadow: none !important;
   }
 }
@@ -454,11 +511,15 @@ mat-form-field {
 
 /* ── Responsive ───────────────────────────────── */
 @media (max-width: 1024px) {
-  .auth-visual { flex: 0 0 38%; }
+  .auth-visual {
+    flex: 0 0 38%;
+  }
 }
 
 @media (max-width: 768px) {
-  .auth-page { flex-direction: column; }
+  .auth-page {
+    flex-direction: column;
+  }
 
   .auth-visual {
     flex: none;
@@ -471,11 +532,19 @@ mat-form-field {
     text-align: center;
   }
 
-  .visual-features { display: none; }
+  .visual-features {
+    display: none;
+  }
 
-  .auth-form-panel { padding: 1.5rem; }
+  .auth-form-panel {
+    padding: 1.5rem;
+  }
 
-  .form-row { grid-template-columns: 1fr; }
-  
-  .pw-rules { grid-template-columns: 1fr; }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .pw-rules {
+    grid-template-columns: 1fr;
+  }
 }

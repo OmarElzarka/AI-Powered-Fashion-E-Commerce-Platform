@@ -128,4 +128,8 @@ export class ShopService {
   getSimilar(id: number, count: number = 6) {
     return this.http.get<Product[]>(this.baseUrl + 'products/' + id + '/similar?count=' + count);
   }
+
+  getProductRecommendations(id: number, count: number = 5) {
+    return this.http.get<Product[]>(this.baseUrl + 'products/' + id + '/recommendations?count=' + count);
+  }
 }

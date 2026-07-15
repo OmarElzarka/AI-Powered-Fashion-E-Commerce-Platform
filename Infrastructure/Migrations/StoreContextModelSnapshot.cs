@@ -395,6 +395,20 @@ namespace Infrastructure.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("Core.Entities.ProductEmbedding", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VectorJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ProductId");
+
+                    b.ToTable("ProductEmbeddings");
+                });
+
             modelBuilder.Entity("Core.Entities.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -698,6 +712,17 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("ItemOrdered")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Core.Entities.ProductEmbedding", b =>
+                {
+                    b.HasOne("Core.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Core.Entities.RefreshToken", b =>

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services;
 
-public class DataImportService(StoreContext context, ILogger<DataImportService> logger) : IDataImportService
+public class DataImportService(StoreContext context, ILogger<DataImportService> logger, ITextEmbeddingService textEmbeddingService) : IDataImportService
 {
     // CSV column indices for products_for_ai.csv
     private const int COL_ID = 0;
@@ -66,6 +67,7 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
             var csvContent = await File.ReadAllTextAsync(csvPath);
             var records = ParseCsv(csvContent);
             var products = new List<Product>();
+            var embeddings = new List<ProductEmbedding>();
             var random = new Random(42); // Deterministic seed for reproducibility
 
             // Skip header (index 0)
@@ -155,13 +157,25 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
                     };
 
                     products.Add(product);
+
+                    var semanticString = $"{product.Name}. {product.Description} Brand: {product.Brand}. Category: {product.Category} {product.SubCategory} {product.ArticleType}. Gender: {product.Gender}. Color: {product.BaseColor}. Pattern: {product.Pattern}. Fit: {product.Fit}. Material: {product.Material}. Occasion: {product.StyleType}. Usage: {product.Usage}. Tags: {product.Tags}";
+                    var vector = await textEmbeddingService.GenerateEmbeddingAsync(semanticString);
+                    var embeddingJson = JsonSerializer.Serialize(vector);
+                    
+                    embeddings.Add(new ProductEmbedding
+                    {
+                        ProductId = product.Id,
+                        VectorJson = embeddingJson
+                    });
+
                     result.Imported++;
 
                     // Batch insert every 500
                     if (products.Count >= 500)
                     {
-                        await BatchInsert(products);
+                        await BatchInsert(products, embeddings);
                         products.Clear();
+                        embeddings.Clear();
                         logger.LogInformation("Batch inserted. Progress: {Imported} imported so far", result.Imported);
                     }
                 }
@@ -178,7 +192,7 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
             // Insert remaining
             if (products.Count > 0)
             {
-                await BatchInsert(products);
+                await BatchInsert(products, embeddings);
             }
         }
         catch (Exception ex)
@@ -195,7 +209,7 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
         return result;
     }
 
-    private async Task BatchInsert(List<Product> products)
+    private async Task BatchInsert(List<Product> products, List<ProductEmbedding> embeddings)
     {
         await using var transaction = await context.Database.BeginTransactionAsync();
         try
@@ -203,6 +217,7 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
             // Use identity insert for explicit IDs
             await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT Products ON");
             context.Products.AddRange(products);
+            context.ProductEmbeddings.AddRange(embeddings);
             await context.SaveChangesAsync();
             await context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT Products OFF");
             await transaction.CommitAsync();

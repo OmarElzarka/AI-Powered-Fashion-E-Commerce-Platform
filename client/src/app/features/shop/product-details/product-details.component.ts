@@ -11,6 +11,7 @@ import { MatInput } from '@angular/material/input';
 import { CartService } from '../../../core/services/cart.service';
 import { FormsModule } from '@angular/forms';
 import { BackendImagePipe } from '../../../shared/pipes/backend-image-pipe';
+import { ProductItemComponent } from '../product-item/product-item.component';
 
 @Component({
   selector: 'app-product-details',
@@ -24,7 +25,8 @@ import { BackendImagePipe } from '../../../shared/pipes/backend-image-pipe';
     MatFormField,
     MatInput,
     FormsModule,
-    BackendImagePipe
+    BackendImagePipe,
+    ProductItemComponent
   ],
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.scss'
@@ -36,7 +38,7 @@ export class ProductDetailsComponent implements OnInit {
   product?: Product;
   quantityInCart = 0;
   quantity = 1;
-
+  recommendations: Product[] = [];
 
   ngOnInit() {
     this.loadProduct();
@@ -49,7 +51,15 @@ export class ProductDetailsComponent implements OnInit {
       next: product => {
         this.product = product
         this.updateQuantityInBasket();
+        this.loadRecommendations(+id);
       },
+      error: error => console.log(error)
+    });
+  }
+
+  loadRecommendations(id: number) {
+    this.shopService.getProductRecommendations(id).subscribe({
+      next: products => this.recommendations = products,
       error: error => console.log(error)
     });
   }
