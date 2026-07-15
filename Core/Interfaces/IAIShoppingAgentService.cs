@@ -9,6 +9,7 @@ namespace Core.Interfaces;
 /// </summary>
 public interface IAIShoppingAgentService
 {
+    Task<string> GetAgentChatResponseAsync(string userMessage, string cartId);
     Task<IReadOnlyList<Product>> SearchByNaturalLanguageAsync(string query, int count = 10);
     Task<string> GetProductComparisonAsync(int productId1, int productId2);
     Task<string> GetProductExplanationAsync(int productId);

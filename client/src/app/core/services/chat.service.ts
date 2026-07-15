@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { CartService } from './cart.service';
 
 export interface ChatMessage {
   text: string;
@@ -18,10 +19,12 @@ export class ChatService {
   private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
   public messages$ = this.messagesSubject.asObservable();
   
+  private cartService = inject(CartService);
+
   public isTypingSubject = new BehaviorSubject<boolean>(false);
   public isTyping$ = this.isTypingSubject.asObservable();
 
-  sendMessage(message: string) {
+  sendMessage(message: string, mode: 'chat' | 'agent' = 'chat') {
     if (!message.trim()) return;
 
     // Add user message to state
@@ -32,7 +35,14 @@ export class ChatService {
     this.isTypingSubject.next(true);
 
     // Call API
-    this.http.post<{response: string}>(this.baseUrl + 'chat', { message }).subscribe({
+    const endpoint = mode === 'agent' ? 'agent' : 'chat';
+    const payload: any = { message };
+    
+    if (mode === 'agent') {
+      payload.cartId = this.cartService.cart()?.id || localStorage.getItem('cart_id');
+    }
+
+    this.http.post<{response: string}>(this.baseUrl + endpoint, payload).subscribe({
       next: (res) => {
         const updatedMessages = this.messagesSubject.value;
         this.messagesSubject.next([...updatedMessages, { text: res.response, isUser: false }]);

@@ -11,9 +11,9 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text;
+using Infrastructure.Plugins;
 using Microsoft.SemanticKernel;
-using Core.Entities;
-using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
@@ -66,6 +66,7 @@ builder.Services.AddScoped<IAIRecommendationService, AIRecommendationService>();
 builder.Services.AddScoped<IAIStylistService, AIStylistService>();
 builder.Services.AddScoped<IAIShoppingAgentService, AIShoppingAgentService>();
 builder.Services.AddScoped<IAiChatService, AiChatService>();
+builder.Services.AddScoped<ShoppingAgentPlugin>();
 
 var geminiKey = builder.Configuration["Gemini:ApiKey"];
 if (!string.IsNullOrEmpty(geminiKey))

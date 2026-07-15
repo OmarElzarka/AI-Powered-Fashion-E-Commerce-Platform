@@ -12,6 +12,7 @@ import { ChatService } from '../../../core/services/chat.service';
 })
 export class ChatWidgetComponent {
   isOpen = false;
+  currentMode: 'chat' | 'agent' = 'chat';
   userInput = '';
   chatService = inject(ChatService);
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
@@ -25,7 +26,7 @@ export class ChatWidgetComponent {
 
   sendMessage() {
     if (this.userInput.trim()) {
-      this.chatService.sendMessage(this.userInput);
+      this.chatService.sendMessage(this.userInput, this.currentMode);
       this.userInput = '';
       setTimeout(() => this.scrollToBottom(), 100);
     }

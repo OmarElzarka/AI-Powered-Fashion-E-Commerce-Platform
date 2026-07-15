@@ -8,8 +8,29 @@
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-black font-bold">AI</div>
         <div>
-          <h3 class="font-bold text-sm m-0">STYLE Virtual Stylist</h3>
+          <h3 class="font-bold text-sm m-0">STYLE {{ currentMode === 'agent' ? 'AI Agent' : 'Virtual Stylist' }}</h3>
           <p class="text-xs text-gray-300 m-0">Typically replies instantly</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Mode Toggle -->
+        <div class="flex bg-gray-800 rounded-full p-1 border border-gray-700">
+          <button 
+            (click)="currentMode = 'chat'" 
+            [class.bg-white]="currentMode === 'chat'" 
+            [class.text-black]="currentMode === 'chat'"
+            [class.text-gray-400]="currentMode !== 'chat'"
+            class="text-xs px-2 py-1 rounded-full transition-colors font-medium">
+            Chat
+          </button>
+          <button 
+            (click)="currentMode = 'agent'" 
+            [class.bg-white]="currentMode === 'agent'" 
+            [class.text-black]="currentMode === 'agent'"
+            [class.text-gray-400]="currentMode !== 'agent'"
+            class="text-xs px-2 py-1 rounded-full transition-colors font-medium">
+            Agent
+          </button>
         </div>
       </div>
       <button (click)="toggleChat()" class="text-white hover:text-gray-300 transition-colors">
