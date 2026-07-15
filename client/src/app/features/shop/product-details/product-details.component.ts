@@ -41,17 +41,21 @@ export class ProductDetailsComponent implements OnInit {
   recommendations: Product[] = [];
 
   ngOnInit() {
-    this.loadProduct();
+    this.activatedRoute.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        window.scrollTo(0, 0);
+        this.loadProduct(+id);
+      }
+    });
   }
 
-  loadProduct() {
-    const id = this.activatedRoute.snapshot.paramMap.get('id');
-    if (!id) return;
-    this.shopService.getProduct(+id).subscribe({
+  loadProduct(id: number) {
+    this.shopService.getProduct(id).subscribe({
       next: product => {
         this.product = product
         this.updateQuantityInBasket();
-        this.loadRecommendations(+id);
+        this.loadRecommendations(id);
       },
       error: error => console.log(error)
     });

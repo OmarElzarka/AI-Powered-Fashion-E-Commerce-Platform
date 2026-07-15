@@ -15,11 +15,21 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services;
 
+public class ProductCacheItem
+{
+    public int Id { get; set; }
+    public float[] Vector { get; set; } = [];
+    public string Gender { get; set; } = string.Empty;
+    public string ArticleType { get; set; } = string.Empty;
+    public string BaseColor { get; set; } = string.Empty;
+    public string Brand { get; set; } = string.Empty;
+}
+
 public class RecommendationService : IRecommendationService, IHostedService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<RecommendationService> _logger;
-    private readonly ConcurrentDictionary<int, float[]> _productVectors = new();
+    private readonly ConcurrentDictionary<int, ProductCacheItem> _productCache = new();
 
     public RecommendationService(IServiceScopeFactory scopeFactory, ILogger<RecommendationService> logger)
     {
@@ -34,43 +44,80 @@ public class RecommendationService : IRecommendationService, IHostedService
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<StoreContext>();
         
-        var embeddings = await context.ProductEmbeddings.AsNoTracking().ToListAsync(cancellationToken);
+        var embeddings = await context.ProductEmbeddings
+            .Include(e => e.Product)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+            
         foreach (var embedding in embeddings)
         {
-            if (!string.IsNullOrEmpty(embedding.VectorJson))
+            if (!string.IsNullOrEmpty(embedding.VectorJson) && embedding.Product != null)
             {
                 var vector = JsonSerializer.Deserialize<float[]>(embedding.VectorJson);
                 if (vector != null)
                 {
-                    _productVectors.TryAdd(embedding.ProductId, vector);
+                    _productCache.TryAdd(embedding.ProductId, new ProductCacheItem
+                    {
+                        Id = embedding.ProductId,
+                        Vector = vector,
+                        Gender = embedding.Product.Gender ?? "",
+                        ArticleType = embedding.Product.ArticleType ?? "",
+                        BaseColor = embedding.Product.BaseColor ?? "",
+                        Brand = embedding.Product.Brand ?? ""
+                    });
                 }
             }
         }
         
-        _logger.LogInformation("Loaded {Count} embeddings into cache.", _productVectors.Count);
+        _logger.LogInformation("Loaded {Count} items into recommendation cache.", _productCache.Count);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     public async Task<List<Product>> GetRecommendationsAsync(int productId, int limit = 5)
     {
-        if (!_productVectors.TryGetValue(productId, out var targetVector))
+        if (!_productCache.TryGetValue(productId, out var targetItem))
         {
             return new List<Product>();
         }
 
-        var similarities = new List<(int ProductId, float Similarity)>();
+        var similarities = new List<(int ProductId, float Score)>();
         
-        foreach (var kvp in _productVectors)
+        foreach (var kvp in _productCache)
         {
             if (kvp.Key == productId) continue;
             
-            float sim = CosineSimilarity(targetVector, kvp.Value);
-            similarities.Add((kvp.Key, sim));
+            var candidate = kvp.Value;
+
+            // HARD FILTER: Gender
+            // If target is specific (Men/Women/Boys/Girls), candidate must match exactly or be Unisex
+            bool targetIsSpecific = !targetItem.Gender.Equals("Unisex", StringComparison.OrdinalIgnoreCase);
+            bool candidateIsSpecific = !candidate.Gender.Equals("Unisex", StringComparison.OrdinalIgnoreCase);
+            
+            if (targetIsSpecific && candidateIsSpecific && 
+                !targetItem.Gender.Equals(candidate.Gender, StringComparison.OrdinalIgnoreCase))
+            {
+                continue; // Incompatible gender, discard entirely
+            }
+
+            // BASE SEMANTIC SCORE
+            float score = CosineSimilarity(targetItem.Vector, candidate.Vector);
+            
+            // HYBRID BOOSTING
+            if (targetItem.ArticleType.Equals(candidate.ArticleType, StringComparison.OrdinalIgnoreCase))
+                score += 0.15f; // High Priority
+                
+            if (targetItem.BaseColor.Equals(candidate.BaseColor, StringComparison.OrdinalIgnoreCase))
+                score += 0.05f; // Medium Priority
+                
+            if (targetItem.Brand.Equals(candidate.Brand, StringComparison.OrdinalIgnoreCase))
+                score += 0.02f; // Low Priority
+
+            similarities.Add((kvp.Key, score));
         }
         
         var topIds = similarities
-            .OrderByDescending(x => x.Similarity)
+            .OrderByDescending(x => x.Score)
             .Take(limit)
             .Select(x => x.ProductId)
             .ToList();
