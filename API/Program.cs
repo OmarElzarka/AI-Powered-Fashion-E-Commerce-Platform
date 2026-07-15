@@ -11,6 +11,18 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.SemanticKernel;
+using Core.Entities;
+using Core.Interfaces;
+using Infrastructure.Data;
+using Infrastructure.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +65,18 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<RecommendationServ
 builder.Services.AddScoped<IAIRecommendationService, AIRecommendationService>();
 builder.Services.AddScoped<IAIStylistService, AIStylistService>();
 builder.Services.AddScoped<IAIShoppingAgentService, AIShoppingAgentService>();
+builder.Services.AddScoped<IAiChatService, AiChatService>();
+
+var geminiKey = builder.Configuration["Gemini:ApiKey"];
+if (!string.IsNullOrEmpty(geminiKey))
+{
+    builder.Services.AddKernel()
+        .AddGoogleAIGeminiChatCompletion(
+            modelId: "gemini-3.1-flash-lite",
+            apiKey: geminiKey,
+            apiVersion: Microsoft.SemanticKernel.Connectors.Google.GoogleAIVersion.V1_Beta
+        );
+}
 
 builder.Services.AddCors();
 builder.Services.AddSingleton<IConnectionMultiplexer>(config =>

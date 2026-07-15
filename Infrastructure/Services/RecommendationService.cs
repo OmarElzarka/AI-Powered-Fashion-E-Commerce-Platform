@@ -133,6 +133,34 @@ public class RecommendationService : IRecommendationService, IHostedService
         return products.OrderBy(p => topIds.IndexOf(p.Id)).ToList();
     }
 
+    public async Task<List<Product>> SearchByVectorAsync(float[] queryVector, int limit = 5)
+    {
+        var similarities = new List<(int ProductId, float Score)>();
+        
+        foreach (var kvp in _productCache)
+        {
+            var candidate = kvp.Value;
+            float score = CosineSimilarity(queryVector, candidate.Vector);
+            similarities.Add((kvp.Key, score));
+        }
+        
+        var topIds = similarities
+            .OrderByDescending(x => x.Score)
+            .Take(limit)
+            .Select(x => x.ProductId)
+            .ToList();
+            
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<StoreContext>();
+        
+        var products = await context.Products
+            .Where(p => topIds.Contains(p.Id))
+            .ToListAsync();
+            
+        // Preserve ordering
+        return products.OrderBy(p => topIds.IndexOf(p.Id)).ToList();
+    }
+
     private static float CosineSimilarity(float[] vectorA, float[] vectorB)
     {
         if (vectorA.Length != vectorB.Length) return 0;

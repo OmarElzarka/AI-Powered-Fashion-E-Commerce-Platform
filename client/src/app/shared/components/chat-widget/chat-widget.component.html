@@ -1,0 +1,95 @@
+<div class="fixed bottom-6 right-6 z-50">
+  
+  <!-- Chat Window -->
+  <div *ngIf="isOpen" class="bg-white rounded-2xl shadow-2xl flex flex-col w-80 sm:w-96 overflow-hidden border border-gray-200 transition-all duration-300 ease-in-out mb-4 h-[500px] max-h-[80vh]">
+    
+    <!-- Header -->
+    <div class="bg-black text-white px-5 py-4 flex justify-between items-center rounded-t-2xl">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-black font-bold">AI</div>
+        <div>
+          <h3 class="font-bold text-sm m-0">STYLE Virtual Stylist</h3>
+          <p class="text-xs text-gray-300 m-0">Typically replies instantly</p>
+        </div>
+      </div>
+      <button (click)="toggleChat()" class="text-white hover:text-gray-300 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Messages Area -->
+    <div #scrollContainer class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-4">
+      
+      <!-- Welcome Message -->
+      <div class="flex gap-2 items-end">
+        <div class="bg-white border border-gray-200 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[85%] text-sm shadow-sm">
+          Hi! I'm your AI stylist. I can help you find the perfect outfit or specific items from our catalog. What are you looking for today?
+        </div>
+      </div>
+
+      <!-- User & AI Messages -->
+      <ng-container *ngFor="let msg of chatService.messages$ | async; let last = last">
+        <!-- AI Message -->
+        <div *ngIf="!msg.isUser" class="flex gap-2 items-end">
+          <div class="bg-white border border-gray-200 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[85%] text-sm shadow-sm whitespace-pre-wrap">
+            {{ msg.text }}
+          </div>
+        </div>
+
+        <!-- User Message -->
+        <div *ngIf="msg.isUser" class="flex gap-2 items-end justify-end">
+          <div class="bg-black text-white p-3 rounded-2xl rounded-br-none max-w-[85%] text-sm shadow-sm">
+            {{ msg.text }}
+          </div>
+        </div>
+        <!-- Scroll anchor -->
+        <span *ngIf="last">{{ scrollToBottom() }}</span>
+      </ng-container>
+
+      <!-- Typing Indicator -->
+      <div *ngIf="chatService.isTyping$ | async" class="flex gap-2 items-end">
+        <div class="bg-white border border-gray-200 p-4 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1 w-16 h-10">
+          <div class="typing-dot"></div>
+          <div class="typing-dot" style="animation-delay: 0.2s"></div>
+          <div class="typing-dot" style="animation-delay: 0.4s"></div>
+        </div>
+      </div>
+      <div class="h-2"></div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="bg-white p-3 border-t border-gray-100 flex items-center gap-2">
+      <input 
+        type="text" 
+        [(ngModel)]="userInput" 
+        (keyup.enter)="sendMessage()"
+        placeholder="Type your message..." 
+        class="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all"
+        [disabled]="(chatService.isTyping$ | async)!"
+      >
+      <button 
+        (click)="sendMessage()" 
+        [disabled]="!userInput.trim() || (chatService.isTyping$ | async)!"
+        class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Toggle Button -->
+  <button 
+    (click)="toggleChat()" 
+    class="w-16 h-16 bg-black text-white rounded-full shadow-xl flex items-center justify-center hover:scale-105 transition-transform duration-200 absolute bottom-0 right-0 z-50">
+    <svg *ngIf="!isOpen" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+    </svg>
+    <svg *ngIf="isOpen" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+</div>
