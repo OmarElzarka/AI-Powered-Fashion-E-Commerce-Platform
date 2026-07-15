@@ -2,10 +2,12 @@ using System;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services;
 
-public class ProductService(IUnitOfWork unit) : IProductService
+public class ProductService(IUnitOfWork unit, StoreContext context) : IProductService
 {
     public async Task<Product?> GetProductByIdAsync(int id)
     {
@@ -48,8 +50,12 @@ public class ProductService(IUnitOfWork unit) : IProductService
 
     public async Task<IReadOnlyList<string>> GetBrandsAsync()
     {
-        var spec = new BrandListSpecification();
-        return await unit.Repository<Product>().ListAsync(spec);
+        return await context.Products
+            .GroupBy(p => p.Brand)
+            .Where(g => g.Count() >= 20)
+            .Select(g => g.Key)
+            .Where(b => !string.IsNullOrEmpty(b))
+            .ToListAsync();
     }
 
     public async Task<IReadOnlyList<string>> GetCategoriesAsync()
@@ -64,17 +70,13 @@ public class ProductService(IUnitOfWork unit) : IProductService
         return await unit.Repository<Product>().ListAsync(spec);
     }
 
-    public async Task<IReadOnlyList<string>> GetColorsAsync()
+    public Task<IReadOnlyList<string>> GetColorsAsync()
     {
-        var spec = new ColorListSpecification();
-        return await unit.Repository<Product>().ListAsync(spec);
+        var commonColors = new List<string> { "Black", "White", "Blue", "Red", "Green", "Grey", "Brown", "Pink", "Yellow", "Beige", "Navy Blue" };
+        return Task.FromResult<IReadOnlyList<string>>(commonColors);
     }
 
-    public async Task<IReadOnlyList<string>> GetSeasonsAsync()
-    {
-        var spec = new SeasonListSpecification();
-        return await unit.Repository<Product>().ListAsync(spec);
-    }
+
 
     public async Task<IReadOnlyList<string>> GetGendersAsync()
     {

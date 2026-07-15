@@ -111,12 +111,7 @@ public class ProductsController(IProductService productService, IRecommendationS
         return Ok(await productService.GetColorsAsync());
     }
 
-    [Cached(100000)]
-    [HttpGet("seasons")]
-    public async Task<ActionResult<IReadOnlyList<string>>> GetSeasons()
-    {
-        return Ok(await productService.GetSeasonsAsync());
-    }
+
 
     [Cached(100000)]
     [HttpGet("genders")]

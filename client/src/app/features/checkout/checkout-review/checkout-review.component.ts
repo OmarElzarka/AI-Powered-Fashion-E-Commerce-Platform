@@ -8,7 +8,7 @@ import { BackendImagePipe } from '../../../shared/pipes/backend-image-pipe';
 
 @Component({
   selector: 'app-checkout-review',
-  imports: [CurrencyPipe, AddressPipe, PaymentCardPipe, BackendImagePipe],
+  imports: [CurrencyPipe, AddressPipe, BackendImagePipe],
   templateUrl: './checkout-review.component.html',
   styleUrl: './checkout-review.component.scss'
 })

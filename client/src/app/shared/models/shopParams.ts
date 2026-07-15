@@ -4,7 +4,7 @@ export class ShopParams {
   subCategories: string[] = [];
   genders: string[] = [];
   colors: string[] = [];
-  seasons: string[] = [];
+  types: string[] = [];
   usages: string[] = [];
   articleTypes: string[] = [];
   patterns: string[] = [];

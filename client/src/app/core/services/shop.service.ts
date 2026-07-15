@@ -14,7 +14,6 @@ export class ShopService {
   brands: string[] = [];
   categories: string[] = [];
   colors: string[] = [];
-  seasons: string[] = [];
   genders: string[] = [];
   articleTypes: string[] = [];
 
@@ -27,15 +26,17 @@ export class ShopService {
     if (shopParams.categories.length > 0) {
       params = params.append('categories', shopParams.categories.join(','));
     }
+
+    if (shopParams.types.length > 0) {
+      params = params.append('types', shopParams.types.join(','));
+    }
     if (shopParams.genders.length > 0) {
       params = params.append('genders', shopParams.genders.join(','));
     }
     if (shopParams.colors.length > 0) {
       params = params.append('colors', shopParams.colors.join(','));
     }
-    if (shopParams.seasons.length > 0) {
-      params = params.append('seasons', shopParams.seasons.join(','));
-    }
+
     if (shopParams.usages.length > 0) {
       params = params.append('usages', shopParams.usages.join(','));
     }
@@ -89,13 +90,6 @@ export class ShopService {
     if (this.colors.length > 0) return;
     return this.http.get<string[]>(this.baseUrl + 'products/colors').subscribe({
       next: response => this.colors = response,
-    });
-  }
-
-  getSeasons() {
-    if (this.seasons.length > 0) return;
-    return this.http.get<string[]>(this.baseUrl + 'products/seasons').subscribe({
-      next: response => this.seasons = response,
     });
   }
 

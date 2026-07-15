@@ -4,6 +4,7 @@ using System.Text.Json;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Data;
@@ -39,10 +40,17 @@ public class StoreContextSeed
             await context.SaveChangesAsync();
         }
 
-        // Import fashion dataset if no products exist
-        if (!context.Products.Any())
+        // Check if we need to run a full migration/purge
+        var productCount = await context.Products.CountAsync();
+        if (productCount != 5000)
         {
-            logger.LogInformation("No products found. Starting fashion dataset import...");
+            logger.LogInformation("Product count is {Count}, expected 5000. Purging database for fresh seed...", productCount);
+            
+            // Delete all existing products and embeddings
+            await context.ProductEmbeddings.ExecuteDeleteAsync();
+            await context.Products.ExecuteDeleteAsync();
+            
+            logger.LogInformation("Database purged. Starting fashion dataset import...");
 
             var datasetPath = seedDataPath;
             var targetImagePath = Path.Combine(seedDataPath, "assets", "products");

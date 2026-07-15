@@ -59,46 +59,35 @@ public class ProductSpecParams : PagingParams
         }
     }
 
-    private List<string> _seasons = [];
-    public List<string> Seasons
+    private List<string> _types = [];
+    public List<string> Types
     {
-        get => _seasons;
+        get => _types;
         set
         {
-            _seasons = value.SelectMany(s => s.Split(',',
+            _types = value.SelectMany(t => t.Split(',',
                 StringSplitOptions.RemoveEmptyEntries)).ToList();
         }
     }
 
-    private List<string> _usages = [];
-    public List<string> Usages
+    private List<string> _necks = [];
+    public List<string> Necks
     {
-        get => _usages;
+        get => _necks;
         set
         {
-            _usages = value.SelectMany(u => u.Split(',',
+            _necks = value.SelectMany(n => n.Split(',',
                 StringSplitOptions.RemoveEmptyEntries)).ToList();
         }
     }
 
-    private List<string> _articleTypes = [];
-    public List<string> ArticleTypes
+    private List<string> _sleeves = [];
+    public List<string> Sleeves
     {
-        get => _articleTypes;
+        get => _sleeves;
         set
         {
-            _articleTypes = value.SelectMany(a => a.Split(',',
-                StringSplitOptions.RemoveEmptyEntries)).ToList();
-        }
-    }
-
-    private List<string> _patterns = [];
-    public List<string> Patterns
-    {
-        get => _patterns;
-        set
-        {
-            _patterns = value.SelectMany(p => p.Split(',',
+            _sleeves = value.SelectMany(s => s.Split(',',
                 StringSplitOptions.RemoveEmptyEntries)).ToList();
         }
     }

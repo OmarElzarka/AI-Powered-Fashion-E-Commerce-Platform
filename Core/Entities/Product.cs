@@ -18,6 +18,8 @@ public class Product : BaseEntity
     public string Material { get; set; } = string.Empty;
     public string Pattern { get; set; } = string.Empty;
     public string Fit { get; set; } = string.Empty;
+    public string Neck { get; set; } = string.Empty;
+    public string Sleeve { get; set; } = string.Empty;
     public string StyleType { get; set; } = string.Empty;
     public string FashionType { get; set; } = string.Empty;
     public int Year { get; set; }

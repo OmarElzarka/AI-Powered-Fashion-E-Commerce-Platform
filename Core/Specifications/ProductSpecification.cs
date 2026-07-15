@@ -8,19 +8,17 @@ public class ProductSpecification : BaseSpecification<Product>
     public ProductSpecification(ProductSpecParams p)
         : base(x =>
             (string.IsNullOrEmpty(p.Search)
-                || x.Name.ToLower().Contains(p.Search)
                 || x.Brand.ToLower().Contains(p.Search)
-                || x.Description.ToLower().Contains(p.Search)
+                || x.Name.ToLower().Contains(p.Search) 
                 || x.Tags.ToLower().Contains(p.Search)) &&
             (!p.Brands.Any() || p.Brands.Contains(x.Brand)) &&
             (!p.Categories.Any() || p.Categories.Contains(x.Category)) &&
             (!p.SubCategories.Any() || p.SubCategories.Contains(x.SubCategory)) &&
+            (!p.Types.Any() || p.Types.Contains(x.ArticleType)) &&
             (!p.Genders.Any() || p.Genders.Contains(x.Gender)) &&
             (!p.Colors.Any() || p.Colors.Contains(x.BaseColor)) &&
-            (!p.Seasons.Any() || p.Seasons.Contains(x.Season)) &&
-            (!p.Usages.Any() || p.Usages.Contains(x.Usage)) &&
-            (!p.ArticleTypes.Any() || p.ArticleTypes.Contains(x.ArticleType)) &&
-            (!p.Patterns.Any() || p.Patterns.Contains(x.Pattern)) &&
+            (!p.Necks.Any() || p.Necks.Contains(x.Neck)) &&
+            (!p.Sleeves.Any() || p.Sleeves.Contains(x.Sleeve)) &&
             (!p.PriceMin.HasValue || x.Price >= p.PriceMin.Value) &&
             (!p.PriceMax.HasValue || x.Price <= p.PriceMax.Value) &&
             (!p.MinRating.HasValue || x.Rating >= p.MinRating.Value) &&

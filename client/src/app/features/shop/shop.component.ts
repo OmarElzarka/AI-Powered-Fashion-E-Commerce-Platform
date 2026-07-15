@@ -2,8 +2,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ShopService } from '../../core/services/shop.service';
 import { Product } from '../../shared/models/product';
 import { ProductItemComponent } from "./product-item/product-item.component";
-import { MatDialog } from '@angular/material/dialog';
-import { FiltersDialogComponent } from './filters-dialog/filters-dialog.component';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
@@ -14,6 +12,8 @@ import { Pagination } from '../../shared/models/pagination';
 import { FormsModule } from '@angular/forms';
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
 import { ActivatedRoute } from '@angular/router';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-shop',
@@ -27,15 +27,17 @@ import { ActivatedRoute } from '@angular/router';
     MatMenuTrigger,
     MatPaginator,
     FormsModule,
-    EmptyStateComponent
+    EmptyStateComponent,
+    MatExpansionModule,
+    MatCheckboxModule
   ],
   templateUrl: './shop.component.html',
   styleUrl: './shop.component.scss'
 })
 export class ShopComponent implements OnInit {
-  private shopService = inject(ShopService);
-  private dialogService = inject(MatDialog);
+  shopService = inject(ShopService);
   private route = inject(ActivatedRoute);
+  
   products?: Pagination<Product>;
   sortOptions = [
     { name: 'Newest', value: 'newest' },
@@ -46,13 +48,30 @@ export class ShopComponent implements OnInit {
   ];
   shopParams = new ShopParams();
   pageSizeOptions = [12, 24, 36, 48];
+  
+  isSidebarOpen = true;
+
+  // Static Category Hierarchy
+  categoryTree = [
+    {
+      name: 'Accessories',
+      types: ['Wallets', 'Watches', 'Belts', 'Sunglasses', 'Handbags']
+    },
+    {
+      name: 'Apparel',
+      types: ['Tshirts', 'Jackets', 'Jeans', 'Dresses', 'Shirts', 'Sweaters']
+    },
+    {
+      name: 'Footwear',
+      types: ['Casual Shoes', 'Sports Shoes', 'Heels', 'Flats', 'Sandals']
+    }
+  ];
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       if (params['search']) this.shopParams.search = params['search'];
       if (params['genders']) this.shopParams.genders = [params['genders']];
       if (params['categories']) this.shopParams.categories = [params['categories']];
-      if (params['seasons']) this.shopParams.seasons = [params['seasons']];
       if (params['isNewArrival']) this.shopParams.isNewArrival = params['isNewArrival'] === 'true';
       this.initialiseShop();
     });
@@ -62,7 +81,6 @@ export class ShopComponent implements OnInit {
     this.shopService.getBrands();
     this.shopService.getCategories();
     this.shopService.getColors();
-    this.shopService.getSeasons();
     this.shopService.getGenders();
     this.shopService.getArticleTypes();
     this.getProducts();
@@ -94,35 +112,43 @@ export class ShopComponent implements OnInit {
     }
   }
 
-  openFiltersDialog() {
-    const dialogRef = this.dialogService.open(FiltersDialogComponent, {
-      minWidth: '500px',
-      data: {
-        selectedBrands: this.shopParams.brands,
-        selectedCategories: this.shopParams.categories,
-        selectedGenders: this.shopParams.genders,
-        selectedColors: this.shopParams.colors,
-        selectedSeasons: this.shopParams.seasons,
-      }
-    });
-    dialogRef.afterClosed().subscribe({
-      next: result => {
-        if (result) {
-          this.shopParams.pageNumber = 1;
-          this.shopParams.brands = result.selectedBrands || [];
-          this.shopParams.categories = result.selectedCategories || [];
-          this.shopParams.genders = result.selectedGenders || [];
-          this.shopParams.colors = result.selectedColors || [];
-          this.shopParams.seasons = result.selectedSeasons || [];
-          this.getProducts();
-        }
-      },
-    });
-  }
-
   handlePageEvent(event: PageEvent) {
     this.shopParams.pageNumber = event.pageIndex + 1;
     this.shopParams.pageSize = event.pageSize;
+    this.getProducts();
+  }
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  toggleType(type: string) {
+    if (this.shopParams.types.includes(type)) {
+      this.shopParams.types = this.shopParams.types.filter(t => t !== type);
+    } else {
+      this.shopParams.types.push(type);
+    }
+    this.shopParams.pageNumber = 1;
+    this.getProducts();
+  }
+
+  toggleBrand(brand: string) {
+    if (this.shopParams.brands.includes(brand)) {
+      this.shopParams.brands = this.shopParams.brands.filter(b => b !== brand);
+    } else {
+      this.shopParams.brands.push(brand);
+    }
+    this.shopParams.pageNumber = 1;
+    this.getProducts();
+  }
+
+  toggleColor(color: string) {
+    if (this.shopParams.colors.includes(color)) {
+      this.shopParams.colors = this.shopParams.colors.filter(c => c !== color);
+    } else {
+      this.shopParams.colors.push(color);
+    }
+    this.shopParams.pageNumber = 1;
     this.getProducts();
   }
 
@@ -130,9 +156,9 @@ export class ShopComponent implements OnInit {
     let count = 0;
     if (this.shopParams.brands.length) count++;
     if (this.shopParams.categories.length) count++;
+    if (this.shopParams.types.length) count++;
     if (this.shopParams.genders.length) count++;
     if (this.shopParams.colors.length) count++;
-    if (this.shopParams.seasons.length) count++;
     if (this.shopParams.search) count++;
     return count;
   }

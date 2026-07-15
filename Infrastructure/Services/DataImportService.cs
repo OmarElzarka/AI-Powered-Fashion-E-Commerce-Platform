@@ -138,6 +138,8 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
                         Material = Clean(row[COL_MATERIAL]),
                         Pattern = Clean(row[COL_PATTERN]),
                         Fit = Clean(row[COL_FIT]),
+                        Neck = Clean(row[COL_NECK]),
+                        Sleeve = Clean(row[COL_SLEEVE]),
                         StyleType = Clean(row[COL_OCCASION]),
                         FashionType = Clean(row[COL_FASHION_TYPE]),
                         Year = ParseYear(row[COL_YEAR]),
@@ -158,7 +160,11 @@ public class DataImportService(StoreContext context, ILogger<DataImportService> 
 
                     products.Add(product);
 
-                    var semanticString = $"{product.Name}. {product.Description} Brand: {product.Brand}. Category: {product.Category} {product.SubCategory} {product.ArticleType}. Gender: {product.Gender}. Color: {product.BaseColor}. Pattern: {product.Pattern}. Fit: {product.Fit}. Material: {product.Material}. Occasion: {product.StyleType}. Usage: {product.Usage}. Tags: {product.Tags}";
+                    var semanticString = Clean(row[COL_SEARCH_TEXT]);
+                    if (string.IsNullOrEmpty(semanticString))
+                    {
+                        semanticString = $"{product.Name}. {product.Description} Brand: {product.Brand}. Category: {product.Category} {product.SubCategory} {product.ArticleType}. Gender: {product.Gender}. Color: {product.BaseColor}. Pattern: {product.Pattern}. Fit: {product.Fit}. Material: {product.Material}. Occasion: {product.StyleType}. Usage: {product.Usage}. Tags: {product.Tags}";
+                    }
                     var vector = await textEmbeddingService.GenerateEmbeddingAsync(semanticString);
                     var embeddingJson = JsonSerializer.Serialize(vector);
                     

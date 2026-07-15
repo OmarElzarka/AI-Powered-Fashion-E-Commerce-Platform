@@ -13,7 +13,6 @@ import { TextInputComponent } from "../../../shared/components/text-input/text-i
 @Component({
   selector: 'app-register',
   imports: [
-    MatCard,
     ReactiveFormsModule,
     MatButton,
     TextInputComponent

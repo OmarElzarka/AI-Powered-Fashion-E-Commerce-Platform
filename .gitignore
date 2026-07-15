@@ -482,3 +482,13 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Application Database
+*.db
+*.sqlite
+
+# Ignore large seed data files
+API/Data/SeedData/styles/
+API/Data/SeedData/images/
+API/Data/SeedData/*.csv
+API/Data/SeedData/*.json

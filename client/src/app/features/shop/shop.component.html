@@ -10,93 +10,168 @@
   </div>
 
   <div class="container-main">
-    @if (products && products.count > 0) {
-      <!-- Toolbar -->
-      <div class="shop-toolbar">
-        <div class="toolbar-left">
-          <form #searchForm="ngForm" (ngSubmit)="onSearchChange()" class="search-form">
-            <mat-icon class="search-icon">search</mat-icon>
-            <input type="search" placeholder="Search products..."
-                name="search" [(ngModel)]="shopParams.search">
-          </form>
-        </div>
-
-        <div class="toolbar-right">
-          <button mat-stroked-button class="toolbar-btn" (click)="openFiltersDialog()">
-            <mat-icon>tune</mat-icon>
-            Filters
+    <div class="shop-layout" [class.sidebar-open]="isSidebarOpen">
+      
+      <!-- Sidebar Filters -->
+      <aside class="sidebar-wrapper" [class.open]="isSidebarOpen">
+        <div class="sidebar-content">
+          <div class="sidebar-header">
+            <h3>Filters</h3>
             @if (activeFilterCount > 0) {
-              <span class="filter-count">{{activeFilterCount}}</span>
+              <button mat-button color="warn" (click)="resetFilters()">Clear All</button>
             }
-          </button>
+          </div>
 
-          <button mat-stroked-button class="toolbar-btn" [matMenuTriggerFor]="sortMenu">
-            <mat-icon>swap_vert</mat-icon>
-            Sort
-          </button>
+          <mat-accordion multi="true">
+            <!-- Categories (Parent) -->
+            <mat-expansion-panel [expanded]="true">
+              <mat-expansion-panel-header>
+                <mat-panel-title>Categories</mat-panel-title>
+              </mat-expansion-panel-header>
 
-          @if (activeFilterCount > 0) {
-            <button mat-button class="clear-btn" (click)="resetFilters()">
-              Clear All
-            </button>
-          }
+              <mat-accordion multi="true" class="nested-accordion">
+                @for (cat of categoryTree; track cat.name) {
+                  <mat-expansion-panel [expanded]="true">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>{{cat.name}}</mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div class="filter-list">
+                      @for (type of cat.types; track type) {
+                        <mat-checkbox 
+                          [checked]="shopParams.types.includes(type)"
+                          (change)="toggleType(type)"
+                          color="primary">
+                          {{type}}
+                        </mat-checkbox>
+                      }
+                    </div>
+                  </mat-expansion-panel>
+                }
+              </mat-accordion>
+            </mat-expansion-panel>
+
+            <!-- Brands -->
+            <mat-expansion-panel [expanded]="true">
+              <mat-expansion-panel-header>
+                <mat-panel-title>Brands</mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="filter-list">
+                @for (brand of shopService.brands; track brand) {
+                  <mat-checkbox 
+                    [checked]="shopParams.brands.includes(brand)"
+                    (change)="toggleBrand(brand)"
+                    color="primary">
+                    {{brand}}
+                  </mat-checkbox>
+                }
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Colors -->
+            <mat-expansion-panel [expanded]="true">
+              <mat-expansion-panel-header>
+                <mat-panel-title>Colors</mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="filter-list">
+                @for (color of shopService.colors; track color) {
+                  <mat-checkbox 
+                    [checked]="shopParams.colors.includes(color)"
+                    (change)="toggleColor(color)"
+                    color="primary">
+                    {{color}}
+                  </mat-checkbox>
+                }
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
         </div>
-      </div>
+      </aside>
 
-      <!-- Products Grid -->
-      <div class="products-grid">
-        @for (product of products.data; track product.id) {
-          <app-product-item [product]="product"></app-product-item>
-        }
-      </div>
+      <!-- Main Content -->
+      <div class="main-content">
+        @if (products && products.count > 0) {
+          <!-- Toolbar -->
+          <div class="shop-toolbar">
+            <div class="toolbar-left">
+              <button mat-stroked-button class="toolbar-btn toggle-sidebar-btn" (click)="toggleSidebar()">
+                <mat-icon>{{ isSidebarOpen ? 'keyboard_arrow_left' : 'keyboard_arrow_right' }}</mat-icon>
+                Filters
+                @if (activeFilterCount > 0) {
+                  <span class="filter-count">{{activeFilterCount}}</span>
+                }
+              </button>
 
-      <!-- Pagination -->
-      <div class="pagination-container">
-        <mat-paginator (page)="handlePageEvent($event)"
-            [length]="products.count" [pageSize]="shopParams.pageSize"
-            [showFirstLastButtons]="true" [pageSizeOptions]="pageSizeOptions"
-            [pageIndex]="shopParams.pageNumber - 1" aria-label="select page">
-        </mat-paginator>
-      </div>
-
-      <mat-menu #sortMenu="matMenu">
-        <mat-selection-list [multiple]="false" #sortList
-            (selectionChange)="onSortChange($event)">
-          @for (sort of sortOptions; track $index) {
-            <mat-list-option [value]="sort.value"
-                [selected]="shopParams.sort === sort.value">{{sort.name}}
-            </mat-list-option>
-          }
-        </mat-selection-list>
-      </mat-menu>
-    } @else if (products && products.count === 0) {
-      <app-empty-state
-        message="No products match your filters"
-        icon="filter_alt_off"
-        actionText="Reset filters"
-        (action)="resetFilters()"
-      />
-    } @else {
-      <!-- Skeleton Grid -->
-      <div class="shop-toolbar">
-        <div class="skeleton" style="width:250px;height:44px;"></div>
-        <div style="display:flex;gap:0.75rem;">
-          <div class="skeleton" style="width:100px;height:40px;"></div>
-          <div class="skeleton" style="width:80px;height:40px;"></div>
-        </div>
-      </div>
-      <div class="products-grid">
-        @for (i of [1,2,3,4,5,6,7,8]; track i) {
-          <div class="skeleton-card">
-            <div class="skeleton" style="aspect-ratio:3/4;"></div>
-            <div style="padding:1rem;">
-              <div class="skeleton" style="height:12px;width:60%;margin-bottom:8px;"></div>
-              <div class="skeleton" style="height:14px;width:80%;margin-bottom:8px;"></div>
-              <div class="skeleton" style="height:16px;width:40%;"></div>
+              <form #searchForm="ngForm" (ngSubmit)="onSearchChange()" class="search-form">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input type="search" placeholder="Search products..."
+                    name="search" [(ngModel)]="shopParams.search">
+              </form>
             </div>
+
+            <div class="toolbar-right">
+              <button mat-stroked-button class="toolbar-btn" [matMenuTriggerFor]="sortMenu">
+                <mat-icon>swap_vert</mat-icon>
+                Sort
+              </button>
+            </div>
+          </div>
+
+          <!-- Products Grid -->
+          <div class="products-grid">
+            @for (product of products.data; track product.id) {
+              <app-product-item [product]="product"></app-product-item>
+            }
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination-container">
+            <mat-paginator (page)="handlePageEvent($event)"
+                [length]="products.count" [pageSize]="shopParams.pageSize"
+                [showFirstLastButtons]="true" [pageSizeOptions]="pageSizeOptions"
+                [pageIndex]="shopParams.pageNumber - 1" aria-label="select page">
+            </mat-paginator>
+          </div>
+
+          <mat-menu #sortMenu="matMenu">
+            <mat-selection-list [multiple]="false" #sortList
+                (selectionChange)="onSortChange($event)">
+              @for (sort of sortOptions; track $index) {
+                <mat-list-option [value]="sort.value"
+                    [selected]="shopParams.sort === sort.value">{{sort.name}}
+                </mat-list-option>
+              }
+            </mat-selection-list>
+          </mat-menu>
+        } @else if (products && products.count === 0) {
+          <app-empty-state
+            message="No products match your filters"
+            icon="filter_alt_off"
+            actionText="Reset filters"
+            (action)="resetFilters()"
+          />
+        } @else {
+          <!-- Skeleton Grid -->
+          <div class="shop-toolbar">
+            <div class="skeleton" style="width:250px;height:44px;"></div>
+            <div style="display:flex;gap:0.75rem;">
+              <div class="skeleton" style="width:100px;height:40px;"></div>
+              <div class="skeleton" style="width:80px;height:40px;"></div>
+            </div>
+          </div>
+          <div class="products-grid">
+            @for (i of [1,2,3,4,5,6,7,8]; track i) {
+              <div class="skeleton-card">
+                <div class="skeleton" style="aspect-ratio:3/4;"></div>
+                <div style="padding:1rem;">
+                  <div class="skeleton" style="height:12px;width:60%;margin-bottom:8px;"></div>
+                  <div class="skeleton" style="height:14px;width:80%;margin-bottom:8px;"></div>
+                  <div class="skeleton" style="height:16px;width:40%;"></div>
+                </div>
+              </div>
+            }
           </div>
         }
       </div>
-    }
+    </div>
   </div>
 </div>

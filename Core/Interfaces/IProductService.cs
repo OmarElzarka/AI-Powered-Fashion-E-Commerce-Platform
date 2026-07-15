@@ -15,7 +15,7 @@ public interface IProductService
     Task<IReadOnlyList<string>> GetCategoriesAsync();
     Task<IReadOnlyList<string>> GetArticleTypesAsync();
     Task<IReadOnlyList<string>> GetColorsAsync();
-    Task<IReadOnlyList<string>> GetSeasonsAsync();
+
     Task<IReadOnlyList<string>> GetGendersAsync();
     Task<IReadOnlyList<Product>> GetFeaturedProductsAsync(int count = 8);
     Task<IReadOnlyList<Product>> GetNewArrivalsAsync(int count = 8);
