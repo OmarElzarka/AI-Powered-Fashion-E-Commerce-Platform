@@ -3,10 +3,13 @@ import { AdminService, AdminUser } from '../../admin.service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { SnackbarService } from '../../../../core/services/snackbar.service';
 
+import { FormsModule } from '@angular/forms';
+import { MatIcon } from '@angular/material/icon';
+
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, FormsModule, MatIcon],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss'
 })
@@ -15,6 +18,17 @@ export class AdminUsersComponent implements OnInit {
   private snackbar = inject(SnackbarService);
   users: AdminUser[] = [];
   loading = true;
+  searchTerm = '';
+
+  get filteredUsers() {
+    if (!this.searchTerm) return this.users;
+    const lowerTerm = this.searchTerm.toLowerCase();
+    return this.users.filter(u => 
+      u.firstName.toLowerCase().includes(lowerTerm) || 
+      u.lastName.toLowerCase().includes(lowerTerm) || 
+      u.email.toLowerCase().includes(lowerTerm)
+    );
+  }
 
   ngOnInit(): void {
     this.loadUsers();

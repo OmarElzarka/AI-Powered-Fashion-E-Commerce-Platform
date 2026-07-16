@@ -60,7 +60,7 @@
           @for (product of products; track product.id) {
             <tr class="hover:bg-bg-alt transition-colors group">
               <td class="px-6 py-3">
-                <img [src]="product.imageUrl" [alt]="product.name" class="w-10 h-10 object-cover rounded shadow-sm border border-border-light">
+                <img src="{{ product.imageUrl | backendImage }}" [alt]="product.name" class="w-10 h-10 object-cover rounded shadow-sm border border-border-light">
               </td>
               <td class="px-6 py-3 font-medium">
                 <div class="truncate max-w-xs" [title]="product.name">{{ product.name }}</div>
@@ -73,7 +73,7 @@
                 </span>
               </td>
               <td class="px-6 py-3 text-right">
-                <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="flex items-center justify-end gap-2 transition-opacity">
                   <a [routerLink]="['/admin/products/edit', product.id]" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Edit">
                     <mat-icon style="font-size: 20px; width: 20px; height: 20px;">edit</mat-icon>
                   </a>

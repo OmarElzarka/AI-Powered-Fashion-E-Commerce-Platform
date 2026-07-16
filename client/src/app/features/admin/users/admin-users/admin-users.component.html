@@ -1,10 +1,23 @@
-<div class="mb-8 flex items-center justify-between">
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
   <div>
     <h2 class="text-3xl font-display font-semibold m-0">User Management</h2>
     <p class="text-text-muted mt-1">View all registered users on the platform.</p>
   </div>
-  <div class="bg-primary text-white px-4 py-2 rounded-md font-medium shadow-sm">
-    Total Users: {{ users.length }}
+  
+  <div class="flex items-center gap-4">
+    <div class="relative">
+      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" style="font-size: 20px; width: 20px; height: 20px;">search</mat-icon>
+      <input 
+        type="text" 
+        placeholder="Search users..." 
+        [(ngModel)]="searchTerm"
+        class="pl-10 pr-4 py-2 border border-border rounded-md bg-surface text-sm w-64 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-shadow"
+      >
+    </div>
+    
+    <div class="bg-surface border border-border text-text px-4 py-2 rounded-md font-medium shadow-sm">
+      Total Users: {{ filteredUsers.length }}
+    </div>
   </div>
 </div>
 
@@ -31,12 +44,12 @@
               <td class="px-6 py-4"><div class="skeleton h-4 w-24 rounded"></div></td>
             </tr>
           }
-        } @else if (users.length === 0) {
+        } @else if (filteredUsers.length === 0) {
           <tr>
             <td colspan="5" class="px-6 py-8 text-center text-text-muted">No users found.</td>
           </tr>
         } @else {
-          @for (user of users; track user.id) {
+          @for (user of filteredUsers; track user.id) {
             <tr class="hover:bg-bg-alt transition-colors">
               <td class="px-6 py-4 font-medium">{{ user.firstName }} {{ user.lastName }}</td>
               <td class="px-6 py-4">{{ user.email }}</td>

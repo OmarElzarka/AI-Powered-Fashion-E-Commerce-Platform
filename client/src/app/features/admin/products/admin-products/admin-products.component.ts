@@ -9,11 +9,12 @@ import { RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SnackbarService } from '../../../../core/services/snackbar.service';
+import { BackendImagePipe } from '../../../../shared/pipes/backend-image-pipe';
 
 @Component({
   selector: 'app-admin-products',
   standalone: true,
-  imports: [CurrencyPipe, MatIcon, RouterLink],
+  imports: [CurrencyPipe, MatIcon, RouterLink, BackendImagePipe],
   templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss'
 })
