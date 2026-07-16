@@ -1,36 +1,15 @@
-<div class="fixed bottom-6 right-6 z-50">
+<div class="fixed bottom-6 right-6 z-50 font-sans">
   
   <!-- Chat Window -->
-  <div *ngIf="isOpen" class="bg-white rounded-2xl shadow-2xl flex flex-col w-80 sm:w-96 overflow-hidden border border-gray-200 transition-all duration-300 ease-in-out mb-4 h-[500px] max-h-[80vh]">
+  <div *ngIf="isOpen" class="bg-white rounded-2xl shadow-2xl flex flex-col w-80 sm:w-96 overflow-hidden border border-gray-200 transition-all duration-300 ease-in-out mb-4 h-[600px] max-h-[85vh]">
     
     <!-- Header -->
     <div class="bg-black text-white px-5 py-4 flex justify-between items-center rounded-t-2xl">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-black font-bold">AI</div>
         <div>
-          <h3 class="font-bold text-sm m-0">STYLE {{ currentMode === 'agent' ? 'AI Agent' : 'Virtual Stylist' }}</h3>
+          <h3 class="font-bold text-sm m-0">STYLE Fashion Assistant</h3>
           <p class="text-xs text-gray-300 m-0">Typically replies instantly</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <!-- Mode Toggle -->
-        <div class="flex bg-gray-800 rounded-full p-1 border border-gray-700">
-          <button 
-            (click)="currentMode = 'chat'" 
-            [class.bg-white]="currentMode === 'chat'" 
-            [class.text-black]="currentMode === 'chat'"
-            [class.text-gray-400]="currentMode !== 'chat'"
-            class="text-xs px-2 py-1 rounded-full transition-colors font-medium">
-            Chat
-          </button>
-          <button 
-            (click)="currentMode = 'agent'" 
-            [class.bg-white]="currentMode === 'agent'" 
-            [class.text-black]="currentMode === 'agent'"
-            [class.text-gray-400]="currentMode !== 'agent'"
-            class="text-xs px-2 py-1 rounded-full transition-colors font-medium">
-            Agent
-          </button>
         </div>
       </div>
       <button (click)="toggleChat()" class="text-white hover:text-gray-300 transition-colors">
@@ -43,25 +22,77 @@
     <!-- Messages Area -->
     <div #scrollContainer class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-4">
       
-      <!-- Welcome Message -->
-      <div class="flex gap-2 items-end">
-        <div class="bg-white border border-gray-200 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[85%] text-sm shadow-sm">
-          Hi! I'm your AI stylist. I can help you find the perfect outfit or specific items from our catalog. What are you looking for today?
+      <!-- Welcome Prompts (Only show if no messages) -->
+      <ng-container *ngIf="(chatService.messages$ | async)?.length === 0">
+        <div class="flex flex-col items-center justify-center h-full text-center p-4">
+          <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center text-white mb-4 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-lg mb-2 text-gray-800">Hi! I'm your AI stylist.</h3>
+          <p class="text-sm text-gray-500 mb-6">How can I help you elevate your wardrobe today?</p>
+          
+          <div class="flex flex-wrap gap-2 justify-center">
+            <button 
+              *ngFor="let prompt of welcomePrompts" 
+              (click)="sendWelcomePrompt(prompt)"
+              class="bg-white border border-gray-200 hover:border-black text-gray-700 hover:text-black text-xs px-3 py-2 rounded-full shadow-sm transition-all text-left">
+              {{ prompt }}
+            </button>
+          </div>
         </div>
-      </div>
+      </ng-container>
 
       <!-- User & AI Messages -->
       <ng-container *ngFor="let msg of chatService.messages$ | async; let last = last">
         <!-- AI Message -->
-        <div *ngIf="!msg.isUser" class="flex gap-2 items-end">
-          <div class="bg-white border border-gray-200 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[85%] text-sm shadow-sm whitespace-pre-wrap">
+        <div *ngIf="!msg.isUser" class="flex flex-col gap-2 items-start max-w-[90%]">
+          <div class="bg-white border border-gray-200 text-gray-800 p-3 rounded-2xl rounded-bl-none text-sm shadow-sm whitespace-pre-wrap leading-relaxed">
             {{ msg.text }}
+          </div>
+
+          <!-- Product Recommendations -->
+          <div *ngIf="msg.products && msg.products.length > 0" class="flex flex-col gap-3 w-full mt-2">
+            <div *ngFor="let product of msg.products" class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col p-3">
+              <div class="flex items-start gap-3">
+                <img [src]="product.imageUrl | backendImage" (error)="onImageError($event)" [alt]="product.name" class="w-20 h-24 object-cover rounded-lg bg-gray-100 border border-gray-100 shrink-0">
+                <div class="flex-1 min-w-0 flex flex-col h-full justify-between">
+                  <div>
+                    <h4 class="font-bold text-sm text-gray-900 leading-tight line-clamp-2" [title]="product.name">{{ product.name }}</h4>
+                    <p class="text-xs text-gray-500 mt-1 truncate">{{ product.category }} • {{ product.brand }}</p>
+                  </div>
+                  <div class="flex items-center justify-between mt-2">
+                    <p class="text-sm font-bold text-green-600">${{ product.price | number:'1.2-2' }}</p>
+                    <button (click)="addRecommendedToCart(product.id)" class="text-xs font-bold text-white bg-black px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Confirmation -->
+          <div *ngIf="msg.confirmation" class="bg-gray-100 border border-gray-200 rounded-xl p-3 w-full mt-2 shadow-inner">
+            <p class="font-bold text-sm text-gray-800 mb-3 text-center">Are you sure you want to perform this action?</p>
+            <div class="flex gap-2">
+              <button (click)="confirmAction(msg.confirmation)" class="flex-1 bg-black text-white py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors">
+                Yes
+              </button>
+              <button (click)="cancelAction()" class="flex-1 bg-white border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors">
+                No
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- User Message -->
-        <div *ngIf="msg.isUser" class="flex gap-2 items-end justify-end">
-          <div class="bg-black text-white p-3 rounded-2xl rounded-br-none max-w-[85%] text-sm shadow-sm">
+        <div *ngIf="msg.isUser" class="flex gap-2 items-end justify-end w-full">
+          <div class="bg-black text-white p-3 rounded-2xl rounded-br-none max-w-[85%] text-sm shadow-sm whitespace-pre-wrap">
             {{ msg.text }}
           </div>
         </div>

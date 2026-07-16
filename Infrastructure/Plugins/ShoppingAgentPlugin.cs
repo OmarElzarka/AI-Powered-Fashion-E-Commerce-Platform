@@ -1,47 +1,56 @@
+using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.SemanticKernel;
+using Infrastructure.Services;
 
 namespace Infrastructure.Plugins;
 
 public class ShoppingAgentPlugin(
     IProductRepository productRepository,
-    ICartService cartService)
+    ICartService cartService,
+    ITextEmbeddingService textEmbeddingService,
+    IRecommendationService recommendationService,
+    AgentResponseContext agentContext)
 {
     [KernelFunction("SearchCatalog")]
-    [Description("Searches the product catalog for items matching a description. Use this to find clothes or outfits.")]
+    [System.ComponentModel.Description("Searches the product catalog for items matching a description using AI vector search. Use this to find clothes, outfits, or answer style queries. Returns a list of products in JSON format. IMPORTANT: Once you receive the products, you MUST call the RecommendProducts tool to actually show them to the user.")]
     public async Task<string> SearchCatalogAsync(
-        [Description("The search query describing the product or outfit (e.g. 'blue denim jacket' or 'summer dress')")] string query)
+        [System.ComponentModel.Description("The search query describing the product or outfit (e.g. 'casual summer outfit under 100')")] string query)
     {
-        // For semantic search, we would use vector search, but since we don't have the textEmbeddingService directly here,
-        // we can fetch all products and do a simple in-memory search, or if we had access to recommendationService.SearchByVectorAsync,
-        // we could use it if we inject ITextEmbeddingService.
-        // Actually, we can just return a list of products by getting all and doing a basic string match for simplicity in this plugin,
-        // or we can just fetch some products. 
-        // Let's use GetProductsAsync from the repository. We can pass the query as a brand or type if it matches, but since it's a general query,
-        // we'll get a list of products and filter them manually for this prototype.
-        
-        var products = await productRepository.GetProductsAsync(null, null, null);
-        
-        var filtered = products
-            .Where(p => p.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || 
-                        p.Description.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                        p.Category.Contains(query, StringComparison.OrdinalIgnoreCase))
-            .Take(5)
-            .Select(p => new { p.Id, p.Name, p.Price, p.Category, p.Brand })
-            .ToList();
+        var queryVector = await textEmbeddingService.GenerateEmbeddingAsync(query);
+        var products = await recommendationService.SearchByVectorAsync(queryVector, limit: 10);
 
-        if (!filtered.Any())
+        if (!products.Any())
         {
-            // If simple text match fails, fallback to returning top 5 general products as "suggestions"
-            filtered = products.Take(5).Select(p => new { p.Id, p.Name, p.Price, p.Category, p.Brand }).ToList();
-            return $"No exact matches found for '{query}', but here are some popular items: " + JsonSerializer.Serialize(filtered);
+            return $"No exact matches found for '{query}'. Tell the user we don't have exactly what they are looking for right now.";
         }
 
-        return JsonSerializer.Serialize(filtered);
+        var results = products.Select(p => new { p.Id, p.Name, p.Price, p.Category, p.Brand }).ToList();
+        return JsonSerializer.Serialize(results);
+    }
+
+    [KernelFunction("RecommendProducts")]
+    [System.ComponentModel.Description("Displays specific products to the user visually in the chat UI. Call this whenever you recommend products.")]
+    public async Task<string> RecommendProductsAsync(
+        [System.ComponentModel.Description("List of product IDs to display")] int[] productIds)
+    {
+        var products = await productRepository.GetProductsAsync(null, null, null);
+        var toDisplay = products.Where(p => productIds.Contains(p.Id)).ToList();
+        
+        foreach (var p in toDisplay)
+        {
+            if (!agentContext.ProductsToDisplay.Any(existing => existing.Id == p.Id))
+            {
+                agentContext.ProductsToDisplay.Add(p);
+            }
+        }
+        return $"Successfully sent {toDisplay.Count} products to the user's UI for display.";
     }
 
     [KernelFunction("GetCartContents")]
@@ -62,67 +71,47 @@ public class ShoppingAgentPlugin(
     }
 
     [KernelFunction("AddToCart")]
-    [Description("Adds a specific product to the user's shopping cart.")]
+    [System.ComponentModel.Description("Adds a specific product to the user's shopping cart. This action requires user confirmation.")]
     public async Task<string> AddToCartAsync(
-        [Description("The ID of the product to add")] int productId,
-        [Description("The quantity to add (usually 1)")] int quantity,
-        [Description("The unique identifier of the user's cart")] string cartId)
+        [System.ComponentModel.Description("The ID of the product to add")] int productId,
+        [System.ComponentModel.Description("The quantity to add (usually 1)")] int quantity,
+        [System.ComponentModel.Description("The unique identifier of the user's cart")] string cartId)
     {
-        if (string.IsNullOrWhiteSpace(cartId)) return "Failed to add to cart: No cart ID provided.";
-        
         var product = await productRepository.GetProductByIdAsync(productId);
         if (product == null) return $"Failed to add to cart: Product with ID {productId} not found.";
 
-        var cart = await cartService.GetCartAsync(cartId) ?? new ShoppingCart { Id = cartId };
-
-        var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
-        if (existingItem != null)
+        agentContext.PendingConfirmation = new ActionConfirmation
         {
-            existingItem.Quantity += quantity;
-        }
-        else
-        {
-            cart.Items.Add(new CartItem
+            Action = "AddToCart",
+            ToolCallId = "pending",
+            Parameters = new Dictionary<string, object>
             {
-                ProductId = product.Id,
-                ProductName = product.Name,
-                Price = product.Price,
-                PictureUrl = product.ImageUrl,
-                Brand = product.Brand,
-                Type = product.Category,
-                Quantity = quantity
-            });
-        }
+                { "productId", productId },
+                { "quantity", quantity }
+            }
+        };
 
-        await cartService.SetCartAsync(cart);
-        return $"Successfully added {quantity} of '{product.Name}' to the cart.";
+        return $"Action paused. Tell the user you are waiting for them to click 'Yes' to add {quantity} of '{product.Name}' to their cart.";
     }
 
     [KernelFunction("RemoveFromCart")]
-    [Description("Removes a specific product from the user's shopping cart or reduces its quantity.")]
+    [System.ComponentModel.Description("Removes a specific product from the user's shopping cart or reduces its quantity. This action requires user confirmation.")]
     public async Task<string> RemoveFromCartAsync(
-        [Description("The ID of the product to remove")] int productId,
-        [Description("The quantity to remove")] int quantity,
-        [Description("The unique identifier of the user's cart")] string cartId)
+        [System.ComponentModel.Description("The ID of the product to remove")] int productId,
+        [System.ComponentModel.Description("The quantity to remove")] int quantity,
+        [System.ComponentModel.Description("The unique identifier of the user's cart")] string cartId)
     {
-        if (string.IsNullOrWhiteSpace(cartId)) return "Failed to remove from cart: No cart ID provided.";
-
-        var cart = await cartService.GetCartAsync(cartId);
-        if (cart == null || cart.Items.Count == 0) return "Failed: Cart is already empty.";
-
-        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
-        if (item == null) return $"Failed: Product with ID {productId} is not in the cart.";
-
-        if (item.Quantity <= quantity)
+        agentContext.PendingConfirmation = new ActionConfirmation
         {
-            cart.Items.Remove(item);
-        }
-        else
-        {
-            item.Quantity -= quantity;
-        }
+            Action = "RemoveFromCart",
+            ToolCallId = "pending",
+            Parameters = new Dictionary<string, object>
+            {
+                { "productId", productId },
+                { "quantity", quantity }
+            }
+        };
 
-        await cartService.SetCartAsync(cart);
-        return $"Successfully removed {(item.Quantity <= quantity ? "all" : quantity.ToString())} of product ID {productId} from the cart.";
+        return $"Action paused. Tell the user you are waiting for them to click 'Yes' to remove product ID {productId} from their cart.";
     }
 }

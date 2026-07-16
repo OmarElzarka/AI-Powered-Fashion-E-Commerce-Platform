@@ -67,6 +67,7 @@ builder.Services.AddScoped<IAIStylistService, AIStylistService>();
 builder.Services.AddScoped<IAIShoppingAgentService, AIShoppingAgentService>();
 builder.Services.AddScoped<IAiChatService, AiChatService>();
 builder.Services.AddScoped<ShoppingAgentPlugin>();
+builder.Services.AddScoped<Infrastructure.Services.AgentResponseContext>();
 
 var geminiKey = builder.Configuration["Gemini:ApiKey"];
 if (!string.IsNullOrEmpty(geminiKey))
