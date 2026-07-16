@@ -10,4 +10,5 @@ public interface IPaymentService
     Task<ShoppingCart?> CreateOrUpdatePaymentIntent(string cartId);
     Task<string> RefundPayment(string paymentIntentId);
     Task<Order?> UpdateOrderPaymentSucceeded(string paymentIntentId, long amount);
+    Task ProcessWebhookAsync(string json, string signature, string whSecret);
 }

@@ -1,5 +1,6 @@
 using Core.Entities;
 using Core.Interfaces;
+using Core.Extensions;
 using Microsoft.Extensions.Configuration;
 using Stripe;
 
@@ -9,13 +10,15 @@ public class PaymentService : IPaymentService
 {
     private readonly ICartService cartService;
     private readonly IUnitOfWork unit;
+    private readonly INotificationService _notificationService;
 
     public PaymentService(IConfiguration config, ICartService cartService,
-        IUnitOfWork unit)
+        IUnitOfWork unit, INotificationService notificationService)
     {
         StripeConfiguration.ApiKey = config["StripeSettings:SecretKey"];
         this.cartService = cartService;
         this.unit = unit;
+        _notificationService = notificationService;
     }
 
     public async Task<ShoppingCart?> CreateOrUpdatePaymentIntent(string cartId)
@@ -160,5 +163,21 @@ public class PaymentService : IPaymentService
         }
 
         return null;
+    }
+
+    public async Task ProcessWebhookAsync(string json, string signature, string whSecret)
+    {
+        var stripeEvent = EventUtility.ConstructEvent(json, signature, whSecret);
+
+        if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
+        {
+            var intent = stripeEvent.Data.Object as PaymentIntent;
+            var order = await UpdateOrderPaymentSucceeded(intent.Id, intent.Amount);
+
+            if (order != null)
+            {
+                await _notificationService.OrderCompleteNotificationAsync(order.BuyerEmail, order.ToDto());
+            }
+        }
     }
 }

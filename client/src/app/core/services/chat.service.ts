@@ -84,6 +84,7 @@ export class ChatService {
       next: (res) => {
         if (res.cartId) {
           localStorage.setItem('cart_id', res.cartId);
+          this.cartService.getCart(res.cartId).subscribe();
         }
 
         // Clear the confirmation from the last message so it doesn't show buttons anymore

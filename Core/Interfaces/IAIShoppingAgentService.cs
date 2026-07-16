@@ -15,4 +15,5 @@ public interface IAIShoppingAgentService
     Task<IReadOnlyList<Product>> SearchByNaturalLanguageAsync(string query, int count = 10);
     Task<string> GetProductComparisonAsync(int productId1, int productId2);
     Task<string> GetProductExplanationAsync(int productId);
+    Task<ShoppingCart?> ConfirmActionAsync(ActionConfirmation request, string? cartId);
 }

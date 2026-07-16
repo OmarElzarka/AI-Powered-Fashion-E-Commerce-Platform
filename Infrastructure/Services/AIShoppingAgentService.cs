@@ -9,6 +9,8 @@ using Microsoft.SemanticKernel.ChatCompletion;
 namespace Infrastructure.Services;
 
 public class AIShoppingAgentService(
+    ICartService cartService,
+    IProductRepository productRepository,
     IChatCompletionService chatCompletionService,
     Kernel kernel,
     Infrastructure.Plugins.ShoppingAgentPlugin shoppingAgentPlugin,
@@ -78,5 +80,47 @@ public class AIShoppingAgentService(
     public Task<string> GetProductExplanationAsync(int productId)
     {
         return Task.FromResult("AI product explanation feature coming soon.");
+    }
+
+    public async Task<ShoppingCart?> ConfirmActionAsync(ActionConfirmation request, string? cartId)
+    {
+        if (request.Action == "AddToCart")
+        {
+            var productId = ((System.Text.Json.JsonElement)request.Parameters["productId"]).GetInt32();
+            var quantity = ((System.Text.Json.JsonElement)request.Parameters["quantity"]).GetInt32();
+            
+            var product = await productRepository.GetProductByIdAsync(productId);
+            if (product == null) return null;
+
+            if (string.IsNullOrWhiteSpace(cartId)) cartId = Guid.NewGuid().ToString();
+
+            var cart = await cartService.GetCartAsync(cartId) ?? new ShoppingCart { Id = cartId };
+            var existingItem = cart.Items.Find(i => i.ProductId == productId);
+            if (existingItem != null) existingItem.Quantity += quantity;
+            else cart.Items.Add(new CartItem { ProductId = product.Id, ProductName = product.Name, Price = product.Price, PictureUrl = product.ImageUrl, Brand = product.Brand, Type = product.Category, Quantity = quantity });
+            
+            return await cartService.SetCartAsync(cart);
+        }
+        else if (request.Action == "RemoveFromCart")
+        {
+            if (string.IsNullOrWhiteSpace(cartId)) return null;
+
+            var productId = ((System.Text.Json.JsonElement)request.Parameters["productId"]).GetInt32();
+            var quantity = ((System.Text.Json.JsonElement)request.Parameters["quantity"]).GetInt32();
+
+            var cart = await cartService.GetCartAsync(cartId);
+            if (cart == null) return null;
+
+            var item = cart.Items.Find(i => i.ProductId == productId);
+            if (item != null)
+            {
+                if (item.Quantity <= quantity) cart.Items.Remove(item);
+                else item.Quantity -= quantity;
+                return await cartService.SetCartAsync(cart);
+            }
+            return cart;
+        }
+
+        return null;
     }
 }
