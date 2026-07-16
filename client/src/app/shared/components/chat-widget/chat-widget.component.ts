@@ -1,21 +1,31 @@
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../core/services/chat.service';
 import { BackendImagePipe } from '../../pipes/backend-image-pipe';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-chat-widget',
   standalone: true,
-  imports: [CommonModule, FormsModule, BackendImagePipe],
+  imports: [CommonModule, FormsModule, BackendImagePipe, MatIcon],
   templateUrl: './chat-widget.component.html',
   styleUrls: ['./chat-widget.component.scss']
 })
-export class ChatWidgetComponent {
+export class ChatWidgetComponent implements OnInit {
   isOpen = false;
   userInput = '';
   chatService = inject(ChatService);
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+
+  ngOnInit() {
+    this.chatService.openChat$.subscribe(open => {
+      if (open) {
+        this.isOpen = true;
+        setTimeout(() => this.scrollToBottom(), 100);
+      }
+    });
+  }
 
   welcomePrompts = [
     "Create a black winter outfit for a man.",

@@ -6,7 +6,17 @@
     <p class="hero-desc">Intelligent recommendations. Curated collections. Personalized for you.</p>
     <div class="hero-actions">
       <a routerLink="/shop" class="btn-primary">Explore Collection</a>
-      <a routerLink="/shop" [queryParams]="{isNewArrival: true}" class="btn-outline">New Arrivals</a>
+      <button (click)="openAgent($event)" class="btn-outline flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="9" width="18" height="12" rx="3" ry="3"></rect>
+          <circle cx="12" cy="4" r="2"></circle>
+          <path d="M12 6v3"></path>
+          <circle cx="9" cy="13" r="1.5" fill="currentColor" stroke="none"></circle>
+          <circle cx="15" cy="13" r="1.5" fill="currentColor" stroke="none"></circle>
+          <path d="M9 17c1.5 1.5 4.5 1.5 6 0"></path>
+        </svg>
+        Use our AI Agent
+      </button>
     </div>
   </div>
 </section>
@@ -35,29 +45,7 @@
     <h2 class="section-title">Trending Now</h2>
     <div class="products-grid">
       @for (product of trendingProducts; track product.id) {
-        <a routerLink="/shop/{{product.id}}" class="product-card-home">
-          <div class="product-image-wrapper">
-            <img [src]="product.imageUrl | backendImage" [alt]="product.name" loading="lazy">
-            @if (product.discountPercentage > 0) {
-              <span class="discount-badge">-{{product.discountPercentage}}%</span>
-            }
-            @if (product.isNewArrival) {
-              <span class="new-badge">NEW</span>
-            }
-          </div>
-          <div class="product-info">
-            <p class="product-brand">{{product.brand}}</p>
-            <p class="product-name">{{product.name}}</p>
-            <div class="product-price">
-              @if (product.discountPercentage > 0) {
-                <span class="price-original">{{product.price | currency}}</span>
-                <span class="price-sale">{{product.discountedPrice | currency}}</span>
-              } @else {
-                <span class="price-current">{{product.price | currency}}</span>
-              }
-            </div>
-          </div>
-        </a>
+        <app-product-item [product]="product"></app-product-item>
       }
     </div>
     <div class="section-action">
@@ -76,8 +64,8 @@
           <mat-icon>auto_awesome</mat-icon> AI-POWERED
         </span>
         <h2>Meet Your Personal <br><span class="gold-accent">AI Stylist</span></h2>
-        <p>Get outfit recommendations, color matching, and style advice powered by artificial intelligence. Coming soon.</p>
-        <button mat-flat-button class="ai-btn" disabled>Coming Soon</button>
+        <p>Experience intelligent outfit generation, personalized recommendations, and discover products seamlessly through natural conversation.</p>
+        <button mat-flat-button class="ai-btn" style="background-color: #000; color: white;">Try It Now</button>
       </div>
       <div class="ai-banner-visual">
         <div class="ai-orb"></div>
@@ -96,19 +84,7 @@
     <h2 class="section-title">New Arrivals</h2>
     <div class="products-grid">
       @for (product of newArrivals; track product.id) {
-        <a routerLink="/shop/{{product.id}}" class="product-card-home">
-          <div class="product-image-wrapper">
-            <img [src]="product.imageUrl | backendImage" [alt]="product.name" loading="lazy">
-            <span class="new-badge">NEW</span>
-          </div>
-          <div class="product-info">
-            <p class="product-brand">{{product.brand}}</p>
-            <p class="product-name">{{product.name}}</p>
-            <div class="product-price">
-              <span class="price-current">{{product.price | currency}}</span>
-            </div>
-          </div>
-        </a>
+        <app-product-item [product]="product"></app-product-item>
       }
     </div>
   </div>
@@ -133,12 +109,20 @@
 </section>
 
 <!-- AI Shopping Assistant Banner -->
-<section class="ai-assistant-banner">
-  <div class="container-main">
-    <mat-icon class="assistant-icon">smart_toy</mat-icon>
-    <h2>AI Shopping Assistant</h2>
-    <p>Find products, compare options, and get personalized recommendations through natural conversation.</p>
-    <button mat-stroked-button disabled style="color:white;border-color:rgba(255,255,255,0.3)">Coming Soon</button>
+<section class="ai-assistant-banner" style="background: linear-gradient(135deg, #111 0%, #333 100%);">
+  <div class="container-main text-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="assistant-icon inline-block" style="width: 48px; height: 48px; color: #e8d5b7; transform: scale(1.2);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="9" width="18" height="12" rx="3" ry="3"></rect>
+      <circle cx="12" cy="4" r="2"></circle>
+      <path d="M12 6v3"></path>
+      <circle cx="9" cy="13" r="1.5" fill="currentColor" stroke="none"></circle>
+      <circle cx="15" cy="13" r="1.5" fill="currentColor" stroke="none"></circle>
+      <path d="M9 17c1.5 1.5 4.5 1.5 6 0"></path>
+    </svg>
+    <h2 style="color: white; margin-top: 1rem;">Intelligent Shopping Assistant</h2>
+    <p style="color: #ccc; max-width: 600px; margin: 0 auto 1.5rem auto;">
+      Build complete outfits, get personalized style recommendations, and let our AI discover matching products from our catalog. Simply ask for what you need!
+    </p>
   </div>
 </section>
 

@@ -33,6 +33,9 @@ export class ChatService {
   public isTypingSubject = new BehaviorSubject<boolean>(false);
   public isTyping$ = this.isTypingSubject.asObservable();
 
+  public openChatSubject = new BehaviorSubject<boolean>(false);
+  public openChat$ = this.openChatSubject.asObservable();
+
   sendMessage(message: string) {
     if (!message.trim()) return;
 

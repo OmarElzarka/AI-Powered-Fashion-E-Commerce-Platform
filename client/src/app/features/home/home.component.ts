@@ -1,20 +1,25 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ShopService } from '../../core/services/shop.service';
+import { CartService } from '../../core/services/cart.service';
+import { ChatService } from '../../core/services/chat.service';
 import { Product } from '../../shared/models/product';
 import { CurrencyPipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton } from '@angular/material/button';
 import { BackendImagePipe } from '../../shared/pipes/backend-image-pipe';
+import { ProductItemComponent } from '../shop/product-item/product-item.component';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, CurrencyPipe, MatIcon, MatButton, BackendImagePipe],
+  imports: [RouterLink, CurrencyPipe, MatIcon, MatButton, BackendImagePipe, ProductItemComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit {
   private shopService = inject(ShopService);
+  private cartService = inject(CartService);
+  private chatService = inject(ChatService);
   featuredProducts: Product[] = [];
   newArrivals: Product[] = [];
   trendingProducts: Product[] = [];
@@ -55,5 +60,14 @@ export class HomeComponent implements OnInit {
     this.shopService.getTrending(8).subscribe({
       next: products => this.trendingProducts = products
     });
+  }
+
+  addToCart(product: Product) {
+    this.cartService.addItemToCart(product, 1);
+  }
+
+  openAgent(event: Event) {
+    event.preventDefault();
+    this.chatService.openChatSubject.next(true);
   }
 }
