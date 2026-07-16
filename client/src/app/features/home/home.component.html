@@ -55,26 +55,6 @@
 </section>
 }
 
-<!-- AI Stylist Banner -->
-<section class="ai-banner">
-  <div class="container-main">
-    <div class="ai-banner-content">
-      <div class="ai-banner-text">
-        <span class="ai-badge">
-          <mat-icon>auto_awesome</mat-icon> AI-POWERED
-        </span>
-        <h2>Meet Your Personal <br><span class="gold-accent">AI Stylist</span></h2>
-        <p>Experience intelligent outfit generation, personalized recommendations, and discover products seamlessly through natural conversation.</p>
-        <button mat-flat-button class="ai-btn" style="background-color: #000; color: white;">Try It Now</button>
-      </div>
-      <div class="ai-banner-visual">
-        <div class="ai-orb"></div>
-        <div class="ai-orb ai-orb-2"></div>
-        <mat-icon class="ai-icon-large">psychology</mat-icon>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- New Arrivals -->
 @if (newArrivals.length > 0) {
@@ -109,20 +89,40 @@
 </section>
 
 <!-- AI Shopping Assistant Banner -->
-<section class="ai-assistant-banner" style="background: linear-gradient(135deg, #111 0%, #333 100%);">
-  <div class="container-main text-center">
-    <svg xmlns="http://www.w3.org/2000/svg" class="assistant-icon inline-block" style="width: 48px; height: 48px; color: #e8d5b7; transform: scale(1.2);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="9" width="18" height="12" rx="3" ry="3"></rect>
-      <circle cx="12" cy="4" r="2"></circle>
-      <path d="M12 6v3"></path>
-      <circle cx="9" cy="13" r="1.5" fill="currentColor" stroke="none"></circle>
-      <circle cx="15" cy="13" r="1.5" fill="currentColor" stroke="none"></circle>
-      <path d="M9 17c1.5 1.5 4.5 1.5 6 0"></path>
-    </svg>
-    <h2 style="color: white; margin-top: 1rem;">Intelligent Shopping Assistant</h2>
-    <p style="color: #ccc; max-width: 600px; margin: 0 auto 1.5rem auto;">
-      Build complete outfits, get personalized style recommendations, and let our AI discover matching products from our catalog. Simply ask for what you need!
+<section class="relative overflow-hidden bg-black py-24 my-16">
+  <!-- Decorative background elements -->
+  <div class="absolute inset-0 opacity-30">
+    <div class="absolute -top-32 -left-32 w-[30rem] h-[30rem] rounded-full bg-gradient-to-br from-gray-700 to-transparent blur-3xl"></div>
+    <div class="absolute -bottom-32 -right-32 w-[30rem] h-[30rem] rounded-full bg-gradient-to-tl from-gray-800 to-transparent blur-3xl"></div>
+  </div>
+
+  <div class="container-main relative z-10 text-center">
+    <div class="inline-flex items-center justify-center p-5 rounded-full bg-white/5 border border-white/10 mb-8 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
+      <mat-icon class="text-white" style="width: 36px; height: 36px; font-size: 36px;">auto_awesome</mat-icon>
+    </div>
+    
+    <h2 class="text-white text-4xl md:text-5xl font-extrabold tracking-tight mb-6">
+      Meet Your Personal <span class="text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500">AI Stylist</span>
+    </h2>
+    
+    <p class="text-gray-400 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed mb-12">
+      Experience intelligent outfit generation, personalized recommendations, and discover products seamlessly through natural conversation.
     </p>
+    
+    <div class="flex flex-wrap justify-center gap-4 md:gap-6">
+      <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-gray-300 font-medium tracking-wider text-xs uppercase shadow-sm">
+        Outfit Generation
+      </div>
+      <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-gray-300 font-medium tracking-wider text-xs uppercase shadow-sm">
+        Smart Recommendations
+      </div>
+      <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-gray-300 font-medium tracking-wider text-xs uppercase shadow-sm">
+        Natural Conversation
+      </div>
+      <div class="px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-gray-300 font-medium tracking-wider text-xs uppercase shadow-sm">
+        Direct Cart Actions
+      </div>
+    </div>
   </div>
 </section>
 
@@ -148,6 +148,10 @@
           <div class="contact-item">
             <mat-icon>email</mat-icon>
             <a href="mailto:omarelzarka1@gmail.com" class="contact-text">omarelzarka1&#64;gmail.com</a>
+          </div>
+          <div class="contact-item">
+            <mat-icon>link</mat-icon>
+            <a href="https://eg.linkedin.com/in/omar-elzarka-168862281" target="_blank" class="contact-text" style="text-decoration: underline; color: inherit;">LinkedIn Profile</a>
           </div>
         </div>
       </div>

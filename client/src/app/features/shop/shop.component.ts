@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { ShopService } from '../../core/services/shop.service';
 import { Product } from '../../shared/models/product';
 import { ProductItemComponent } from "./product-item/product-item.component";
@@ -6,7 +6,6 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatListOption, MatSelectionList } from '@angular/material/list';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { ShopParams } from '../../shared/models/shopParams';
 import { Pagination } from '../../shared/models/pagination';
 import { FormsModule } from '@angular/forms';
@@ -25,7 +24,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatSelectionList,
     MatListOption,
     MatMenuTrigger,
-    MatPaginator,
     FormsModule,
     EmptyStateComponent,
     MatExpansionModule,
@@ -50,6 +48,7 @@ export class ShopComponent implements OnInit {
   pageSizeOptions = [12, 24, 36, 48];
   
   isSidebarOpen = true;
+  isLoadingMore = false;
 
   // Static Category Hierarchy
   categoryTree = [
@@ -77,6 +76,27 @@ export class ShopComponent implements OnInit {
     });
   }
 
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    if (this.isLoadingMore || !this.products) return;
+    
+    // Check if we are near the bottom of the page (within 500px)
+    const pos = (document.documentElement.scrollTop || document.body.scrollTop) + window.innerHeight;
+    const max = document.documentElement.scrollHeight;
+    
+    if (max - pos < 500) {
+      this.loadMoreProducts();
+    }
+  }
+
+  loadMoreProducts() {
+    if (this.products && this.products.data.length < this.products.count) {
+      this.isLoadingMore = true;
+      this.shopParams.pageNumber++;
+      this.getProducts();
+    }
+  }
+
   initialiseShop() {
     this.shopService.getBrands();
     this.shopService.getCategories();
@@ -98,8 +118,18 @@ export class ShopComponent implements OnInit {
 
   getProducts() {
     this.shopService.getProducts(this.shopParams).subscribe({
-      next: response => this.products = response,
-      error: error => console.error(error)
+      next: response => {
+        if (this.shopParams.pageNumber === 1) {
+          this.products = response;
+        } else if (this.products) {
+          this.products.data = [...this.products.data, ...response.data];
+        }
+        this.isLoadingMore = false;
+      },
+      error: error => {
+        console.error(error);
+        this.isLoadingMore = false;
+      }
     });
   }
 
@@ -110,12 +140,6 @@ export class ShopComponent implements OnInit {
       this.shopParams.sort = selectedOption.value;
       this.getProducts();
     }
-  }
-
-  handlePageEvent(event: PageEvent) {
-    this.shopParams.pageNumber = event.pageIndex + 1;
-    this.shopParams.pageSize = event.pageSize;
-    this.getProducts();
   }
 
   toggleSidebar() {

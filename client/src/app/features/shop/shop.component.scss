@@ -157,21 +157,23 @@
 .search-form {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: var(--color-bg-alt);
+  gap: 0.75rem;
+  background: white;
   border-radius: var(--radius-full);
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--color-border-light);
-  transition: border-color var(--transition-fast);
+  padding: 0.65rem 1.2rem;
+  border: 2px solid var(--color-border-light);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all var(--transition-fast);
   flex: 1;
 
   &:focus-within {
     border-color: var(--color-secondary);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   }
 
   .search-icon {
-    font-size: 20px;
-    color: var(--color-text-muted);
+    font-size: 22px;
+    color: var(--color-text);
   }
 
   input {
@@ -179,11 +181,12 @@
     border: none;
     outline: none;
     background: transparent;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-family: var(--font-body);
 
     &::placeholder {
       color: var(--color-text-muted);
+      font-weight: 500;
     }
   }
 }

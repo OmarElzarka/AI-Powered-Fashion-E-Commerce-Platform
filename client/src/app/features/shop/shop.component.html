@@ -123,13 +123,11 @@
             }
           </div>
 
-          <!-- Pagination -->
-          <div class="pagination-container">
-            <mat-paginator (page)="handlePageEvent($event)"
-                [length]="products.count" [pageSize]="shopParams.pageSize"
-                [showFirstLastButtons]="true" [pageSizeOptions]="pageSizeOptions"
-                [pageIndex]="shopParams.pageNumber - 1" aria-label="select page">
-            </mat-paginator>
+          <!-- Infinite Scroll Observer -->
+          <div #scrollObserver class="infinite-scroll-trigger w-full h-12 flex justify-center items-center mt-8">
+            @if (isLoadingMore) {
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+            }
           </div>
 
           <mat-menu #sortMenu="matMenu">
