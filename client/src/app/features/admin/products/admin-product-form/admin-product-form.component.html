@@ -1,0 +1,110 @@
+<div class="mb-8">
+  <div class="flex items-center gap-2 mb-2 text-text-muted text-sm font-medium">
+    <a routerLink="/admin/products" class="hover:text-secondary transition-colors">Products</a>
+    <span>/</span>
+    <span class="text-text">{{ isEditMode ? 'Edit Product' : 'Add New Product' }}</span>
+  </div>
+  <h2 class="text-3xl font-display font-semibold m-0">{{ isEditMode ? 'Edit Product' : 'Add New Product' }}</h2>
+</div>
+
+@if (loading && isEditMode) {
+  <div class="skeleton h-[600px] w-full rounded-xl"></div>
+} @else {
+  <div class="bg-surface border border-border rounded-xl shadow-sm p-6 md:p-8 max-w-4xl">
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
+      
+      <!-- Basic Info -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-text">Product Name *</label>
+          <input type="text" formControlName="name" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+        </div>
+        
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-text">Brand *</label>
+          <input type="text" formControlName="brand" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-text">Description *</label>
+        <textarea formControlName="description" rows="4" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"></textarea>
+      </div>
+
+      <!-- Pricing & Stock -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-text">Price ($) *</label>
+          <input type="number" formControlName="price" min="0" step="0.01" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+        </div>
+        
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-text">Discount %</label>
+          <input type="number" formControlName="discountPercentage" min="0" max="100" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-text">Stock Quantity *</label>
+          <input type="number" formControlName="quantityInStock" min="0" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+        </div>
+      </div>
+
+      <!-- Categories & Details -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-text">Category *</label>
+          <input type="text" formControlName="category" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+        </div>
+        
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-text">Article Type *</label>
+          <input type="text" formControlName="articleType" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-text">Gender *</label>
+          <select formControlName="gender" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none bg-surface">
+            <option value="Men">Men</option>
+            <option value="Women">Women</option>
+            <option value="Unisex">Unisex</option>
+            <option value="Boys">Boys</option>
+            <option value="Girls">Girls</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Image & Tags -->
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-text">Image URL *</label>
+        <input type="text" formControlName="imageUrl" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+        <span class="text-xs text-text-muted mt-1">Provide a full URL to the product image.</span>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-text">Tags (Comma separated)</label>
+        <input type="text" formControlName="tags" placeholder="e.g. casual, summer, cotton" class="p-2 border border-border rounded-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+      </div>
+
+      <!-- Toggles -->
+      <div class="flex gap-6 mt-2">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" formControlName="isFeatured" class="w-4 h-4 text-secondary focus:ring-secondary border-border rounded">
+          <span class="text-sm font-medium text-text">Featured Product</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" formControlName="isNewArrival" class="w-4 h-4 text-secondary focus:ring-secondary border-border rounded">
+          <span class="text-sm font-medium text-text">New Arrival</span>
+        </label>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-border">
+        <a routerLink="/admin/products" class="px-6 py-2 rounded-md font-medium text-text-secondary hover:bg-bg-alt transition-colors">Cancel</a>
+        <button type="submit" [disabled]="productForm.invalid || loading" class="btn-primary flex items-center gap-2">
+          {{ isEditMode ? 'Save Changes' : 'Create Product' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+}

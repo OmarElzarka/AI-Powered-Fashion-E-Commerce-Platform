@@ -1,0 +1,49 @@
+<div class="mb-8">
+  <h2 class="text-3xl font-display font-semibold m-0">Dashboard Overview</h2>
+  <p class="text-text-muted mt-1">Welcome back. Here's what's happening with your store today.</p>
+</div>
+
+@if (loading) {
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    @for (i of [1,2,3]; track i) {
+      <div class="skeleton h-32 w-full rounded-xl"></div>
+    }
+  </div>
+} @else if (stats) {
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    
+    <!-- Products Card -->
+    <div class="bg-surface p-6 rounded-xl border border-border shadow-sm flex items-center justify-between transition-transform hover:-translate-y-1 hover:shadow-md">
+      <div>
+        <p class="text-sm font-medium text-text-muted uppercase tracking-wider mb-1">Total Products</p>
+        <h3 class="text-4xl font-bold m-0 text-primary">{{stats.totalProducts}}</h3>
+      </div>
+      <div class="w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+        <mat-icon class="text-3xl" style="height: 30px; width: 30px; font-size: 30px;">inventory</mat-icon>
+      </div>
+    </div>
+
+    <!-- Users Card -->
+    <div class="bg-surface p-6 rounded-xl border border-border shadow-sm flex items-center justify-between transition-transform hover:-translate-y-1 hover:shadow-md">
+      <div>
+        <p class="text-sm font-medium text-text-muted uppercase tracking-wider mb-1">Total Users</p>
+        <h3 class="text-4xl font-bold m-0 text-primary">{{stats.totalUsers}}</h3>
+      </div>
+      <div class="w-14 h-14 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
+        <mat-icon class="text-3xl" style="height: 30px; width: 30px; font-size: 30px;">people</mat-icon>
+      </div>
+    </div>
+
+    <!-- Orders Card -->
+    <div class="bg-surface p-6 rounded-xl border border-border shadow-sm flex items-center justify-between transition-transform hover:-translate-y-1 hover:shadow-md">
+      <div>
+        <p class="text-sm font-medium text-text-muted uppercase tracking-wider mb-1">Total Orders</p>
+        <h3 class="text-4xl font-bold m-0 text-primary">{{stats.totalOrders}}</h3>
+      </div>
+      <div class="w-14 h-14 rounded-full bg-green-50 text-green-600 flex items-center justify-center">
+        <mat-icon class="text-3xl" style="height: 30px; width: 30px; font-size: 30px;">receipt_long</mat-icon>
+      </div>
+    </div>
+
+  </div>
+}

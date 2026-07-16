@@ -7,11 +7,13 @@
 
     <!-- Navigation -->
     <nav class="main-nav">
-      <a routerLink="/" routerLinkActive="active"
-          [routerLinkActiveOptions]="{exact: true}">Home</a>
-      <a routerLink="/shop" routerLinkActive="active">Shop</a>
-      <a routerLink="/shop" [queryParams]="{genders: 'Women'}" routerLinkActive="active">Women</a>
-      <a routerLink="/shop" [queryParams]="{genders: 'Men'}" routerLinkActive="active">Men</a>
+      @if (!accountService.isAdmin()) {
+        <a routerLink="/" routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact: true}">Home</a>
+        <a routerLink="/shop" routerLinkActive="active">Shop</a>
+        <a routerLink="/shop" [queryParams]="{genders: 'Women'}" routerLinkActive="active">Women</a>
+        <a routerLink="/shop" [queryParams]="{genders: 'Men'}" routerLinkActive="active">Men</a>
+      }
       <a *appIsAdmin routerLink="/admin" routerLinkActive="active">Admin</a>
     </nav>
 
@@ -40,6 +42,9 @@
           <mat-divider></mat-divider>
           <button mat-menu-item routerLink="/orders">
             <mat-icon>receipt_long</mat-icon> My Orders
+          </button>
+          <button *appIsAdmin mat-menu-item routerLink="/admin">
+            <mat-icon class="gold-accent">admin_panel_settings</mat-icon> Admin Panel
           </button>
           <button mat-menu-item routerLink="/cart">
             <mat-icon>shopping_bag</mat-icon> My Cart

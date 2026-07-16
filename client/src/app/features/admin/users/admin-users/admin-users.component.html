@@ -1,0 +1,72 @@
+<div class="mb-8 flex items-center justify-between">
+  <div>
+    <h2 class="text-3xl font-display font-semibold m-0">User Management</h2>
+    <p class="text-text-muted mt-1">View all registered users on the platform.</p>
+  </div>
+  <div class="bg-primary text-white px-4 py-2 rounded-md font-medium shadow-sm">
+    Total Users: {{ users.length }}
+  </div>
+</div>
+
+<div class="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm text-text whitespace-nowrap">
+      <thead class="bg-bg border-b border-border text-text-muted font-medium uppercase tracking-wider">
+        <tr>
+          <th scope="col" class="px-6 py-4">Name</th>
+          <th scope="col" class="px-6 py-4">Email</th>
+          <th scope="col" class="px-6 py-4">Roles</th>
+          <th scope="col" class="px-6 py-4">ID</th>
+          <th scope="col" class="px-6 py-4">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-border">
+        @if (loading) {
+          @for (i of [1,2,3]; track i) {
+            <tr>
+              <td class="px-6 py-4"><div class="skeleton h-4 w-32 rounded"></div></td>
+              <td class="px-6 py-4"><div class="skeleton h-4 w-48 rounded"></div></td>
+              <td class="px-6 py-4"><div class="skeleton h-4 w-16 rounded"></div></td>
+              <td class="px-6 py-4"><div class="skeleton h-4 w-24 rounded"></div></td>
+              <td class="px-6 py-4"><div class="skeleton h-4 w-24 rounded"></div></td>
+            </tr>
+          }
+        } @else if (users.length === 0) {
+          <tr>
+            <td colspan="5" class="px-6 py-8 text-center text-text-muted">No users found.</td>
+          </tr>
+        } @else {
+          @for (user of users; track user.id) {
+            <tr class="hover:bg-bg-alt transition-colors">
+              <td class="px-6 py-4 font-medium">{{ user.firstName }} {{ user.lastName }}</td>
+              <td class="px-6 py-4">{{ user.email }}</td>
+              <td class="px-6 py-4">
+                <div class="flex gap-1">
+                  @for (role of user.roles; track role) {
+                    <span class="tag-chip !bg-blue-50 !text-blue-700 !border-blue-200">{{ role }}</span>
+                  }
+                  @if (user.roles.length === 0) {
+                    <span class="tag-chip">User</span>
+                  }
+                </div>
+              </td>
+              <td class="px-6 py-4 font-mono text-xs text-text-muted">{{ user.id.substring(0, 8) }}...</td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <button (click)="toggleAdminRole(user)" 
+                    class="text-sm font-medium transition-colors"
+                    [class]="user.roles.includes('Admin') ? 'text-amber-600 hover:text-amber-800' : 'text-blue-600 hover:text-blue-800'">
+                    {{ user.roles.includes('Admin') ? 'Revoke Admin' : 'Make Admin' }}
+                  </button>
+                  <button (click)="deleteUser(user.id)" class="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

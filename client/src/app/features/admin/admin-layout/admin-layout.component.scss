@@ -1,0 +1,15 @@
+.admin-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.admin-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.admin-main {
+  height: 100vh;
+}
