@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using Core.Extensions;
 using API.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;

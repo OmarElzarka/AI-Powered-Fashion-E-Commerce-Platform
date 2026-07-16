@@ -1,5 +1,6 @@
 using System;
-using API.DTOs;
+using Core.DTOs;
+using Core.Extensions;
 using API.Extensions;
 using Core.Entities.OrderAggregate;
 using Core.Interfaces;

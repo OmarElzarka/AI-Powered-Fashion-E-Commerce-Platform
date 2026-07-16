@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace API.DTOs;
+namespace Core.DTOs;
 
 public class RegisterDto
 {

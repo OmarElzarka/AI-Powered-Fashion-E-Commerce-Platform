@@ -56,6 +56,29 @@ public class PaymentService : IPaymentService
         return result.Status;
     }
 
+    public async Task<Core.Entities.OrderAggregate.Order?> UpdateOrderPaymentSucceeded(string paymentIntentId, long amount)
+    {
+        var spec = new Core.Specifications.OrderSpecification(paymentIntentId, true);
+
+        var order = await unit.Repository<Core.Entities.OrderAggregate.Order>().GetEntityWithSpec(spec);
+        if (order == null) return null;
+
+        var orderTotalInCents = (long)Math.Round(order.GetTotal() * 100, MidpointRounding.AwayFromZero);
+
+        if (orderTotalInCents != amount)
+        {
+            order.Status = Core.Entities.OrderAggregate.OrderStatus.PaymentMismatch;
+        }
+        else
+        {
+            order.Status = Core.Entities.OrderAggregate.OrderStatus.PaymentReceived;
+        }
+
+        await unit.Complete();
+
+        return order;
+    }
+
     private async Task CreateUpdatePaymentIntentAsync(ShoppingCart cart,
         long total)
     {

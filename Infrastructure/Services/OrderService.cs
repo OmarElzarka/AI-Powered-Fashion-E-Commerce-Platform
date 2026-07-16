@@ -84,4 +84,9 @@ public class OrderService(ICartService cartService, IUnitOfWork unit) : IOrderSe
         var spec = new OrderSpecification(email, id);
         return await unit.Repository<Order>().GetEntityWithSpec(spec);
     }
+
+    public async Task<IReadOnlyList<DeliveryMethod>> GetDeliveryMethodsAsync()
+    {
+        return await unit.Repository<DeliveryMethod>().ListAllAsync();
+    }
 }

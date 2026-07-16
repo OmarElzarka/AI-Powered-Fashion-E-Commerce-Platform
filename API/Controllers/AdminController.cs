@@ -1,136 +1,72 @@
 using System;
-using API.DTOs;
-using API.Extensions;
+using Core.DTOs;
+using Core.Extensions;
+using Core.RequestHelpers;
 using Core.Entities.OrderAggregate;
 using Core.Interfaces;
 using Core.Specifications;
 using Core.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class AdminController(IUnitOfWork unit, IPaymentService paymentService, UserManager<AppUser> userManager) : BaseApiController
+public class AdminController(IAdminService adminService) : BaseApiController
 {
     [HttpGet("dashboard-stats")]
     public async Task<ActionResult<DashboardStatsDto>> GetDashboardStats()
     {
-        // Using an empty specification to count all items
-        var totalProducts = await unit.Repository<Product>().CountAsync(new ProductSpecification(new ProductSpecParams()));
-        var totalOrders = await unit.Repository<Order>().CountAsync(new OrderSpecification(new OrderSpecParams()));
-        var totalUsers = await userManager.Users.CountAsync();
-
-        return new DashboardStatsDto
-        {
-            TotalProducts = totalProducts,
-            TotalOrders = totalOrders,
-            TotalUsers = totalUsers
-        };
+        return await adminService.GetDashboardStatsAsync();
     }
 
     [HttpGet("users")]
     public async Task<ActionResult<IReadOnlyList<UserDto>>> GetUsers()
     {
-        var users = await userManager.Users.ToListAsync();
-        var userDtos = new List<UserDto>();
-
-        foreach (var user in users)
-        {
-            var roles = await userManager.GetRolesAsync(user);
-            userDtos.Add(new UserDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName ?? string.Empty,
-                LastName = user.LastName ?? string.Empty,
-                Email = user.Email ?? string.Empty,
-                Roles = roles
-            });
-        }
-
-        return Ok(userDtos);
+        var users = await adminService.GetUsersAsync();
+        return Ok(users);
     }
 
     [HttpGet("orders")]
-    public async Task<ActionResult<IReadOnlyList<OrderDto>>> GetOrders([FromQuery] OrderSpecParams specParams)
+    public async Task<ActionResult<Pagination<OrderDto>>> GetOrders([FromQuery] OrderSpecParams specParams)
     {
-        var spec = new OrderSpecification(specParams);
-
-        return await CreatePagedResult(unit.Repository<Order>(),
-            spec, specParams.PageIndex, specParams.PageSize, o => o.ToDto());
+        var pagination = await adminService.GetOrdersAsync(specParams);
+        return Ok(pagination);
     }
 
     [HttpGet("orders/{id:int}")]
     public async Task<ActionResult<OrderDto>> GetOrderById(int id)
     {
-        var spec = new OrderSpecification(id);
-
-        var order = await unit.Repository<Order>().GetEntityWithSpec(spec);
-
+        var order = await adminService.GetOrderByIdAsync(id);
         if (order == null) return BadRequest("No order with that Id");
-
-        return order.ToDto();
+        return Ok(order);
     }
 
     [HttpPost("orders/refund/{id:int}")]
     public async Task<ActionResult<OrderDto>> RefundOrder(int id)
     {
-        var spec = new OrderSpecification(id);
-
-        var order = await unit.Repository<Order>().GetEntityWithSpec(spec);
-
-        if (order == null) return BadRequest("No order with that Id");
-
-        if (order.Status == OrderStatus.Pending)
-            return BadRequest("Payment not received for this order");
-
-        var result = await paymentService.RefundPayment(order.PaymentIntentId);
-
-        if (result == "succeeded")
-        {
-            order.Status = OrderStatus.Refunded;
-
-            await unit.Complete();
-
-            return order.ToDto();
-        }
-
-        return BadRequest("Problem refunding order");
+        var order = await adminService.RefundOrderAsync(id);
+        
+        if (order == null) return BadRequest("Problem refunding order or order not found");
+        
+        return Ok(order);
     }
 
     [HttpDelete("users/{id}")]
     public async Task<ActionResult> DeleteUser(string id)
     {
-        var user = await userManager.FindByIdAsync(id);
-        if (user == null) return NotFound("User not found");
+        var success = await adminService.DeleteUserAsync(id);
+        if (success) return Ok();
 
-        var result = await userManager.DeleteAsync(user);
-
-        if (result.Succeeded) return Ok();
-
-        return BadRequest("Failed to delete user");
+        return BadRequest("Failed to delete user or user not found");
     }
 
     [HttpPost("users/{id}/roles")]
     public async Task<ActionResult> UpdateUserRole(string id, [FromQuery] string role, [FromQuery] bool assign)
     {
-        var user = await userManager.FindByIdAsync(id);
-        if (user == null) return NotFound("User not found");
+        var success = await adminService.UpdateUserRoleAsync(id, role, assign);
+        if (success) return Ok();
 
-        IdentityResult result;
-        if (assign)
-        {
-            result = await userManager.AddToRoleAsync(user, role);
-        }
-        else
-        {
-            result = await userManager.RemoveFromRoleAsync(user, role);
-        }
-
-        if (result.Succeeded) return Ok();
-
-        return BadRequest("Failed to update user role");
+        return BadRequest("Failed to update user role or user not found");
     }
 }

@@ -1,5 +1,5 @@
 using System;
-using API.Extensions;
+using Core.Extensions;
 using API.SignalR;
 using Core.Entities;
 using Core.Entities.OrderAggregate;
@@ -13,7 +13,7 @@ using Stripe;
 namespace API.Controllers;
 
 public class PaymentsController(IPaymentService paymentService,
-    IUnitOfWork unit,
+    IOrderService orderService,
     IHubContext<NotificationHub> hubContext,
     ILogger<PaymentsController> logger,
     IConfiguration config) : BaseApiController
@@ -49,7 +49,7 @@ public class PaymentsController(IPaymentService paymentService,
     [HttpGet("delivery-methods")]
     public async Task<ActionResult<IReadOnlyList<DeliveryMethod>>> GetDeliveryMethods()
     {
-        return Ok(await unit.Repository<DeliveryMethod>().ListAllAsync());
+        return Ok(await orderService.GetDeliveryMethodsAsync());
     }
 
     [HttpPost("webhook")]
@@ -99,31 +99,17 @@ public class PaymentsController(IPaymentService paymentService,
     {
         if (intent.Status == "succeeded")
         {
-            var spec = new OrderSpecification(intent.Id, true);
+            var order = await paymentService.UpdateOrderPaymentSucceeded(intent.Id, intent.Amount);
 
-            var order = await unit.Repository<Order>().GetEntityWithSpec(spec)
-                        ?? throw new Exception("Order not found");
-
-            var orderTotalInCents = (long)Math.Round(order.GetTotal() * 100,
-            MidpointRounding.AwayFromZero);
-
-            if (orderTotalInCents != intent.Amount)
+            if (order != null)
             {
-                order.Status = OrderStatus.PaymentMismatch;
-            }
-            else
-            {
-                order.Status = OrderStatus.PaymentReceived;
-            }
+                var connectionId = NotificationHub.GetConnectionIdByEmail(order.BuyerEmail);
 
-            await unit.Complete();
-
-            var connectionId = NotificationHub.GetConnectionIdByEmail(order.BuyerEmail);
-
-            if (!string.IsNullOrEmpty(connectionId))
-            {
-                await hubContext.Clients.Client(connectionId).SendAsync("OrderCompleteNotification",
-                    order.ToDto());
+                if (!string.IsNullOrEmpty(connectionId))
+                {
+                    await hubContext.Clients.Client(connectionId).SendAsync("OrderCompleteNotification",
+                        order.ToDto());
+                }
             }
         }
     }

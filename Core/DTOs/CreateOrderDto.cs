@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Core.Entities.OrderAggregate;
 
-namespace API.DTOs;
+namespace Core.DTOs;
 
 public class CreateOrderDto
 {

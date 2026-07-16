@@ -1,8 +1,8 @@
 using System;
-using API.DTOs;
+using Core.DTOs;
 using Core.Entities;
 
-namespace API.Extensions;
+namespace Core.Extensions;
 
 public static class ProductMappingExtensions
 {
