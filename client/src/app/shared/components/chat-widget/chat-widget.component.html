@@ -20,7 +20,7 @@
     </div>
 
     <!-- Messages Area -->
-    <div #scrollContainer class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-4">
+    <div #scrollContainer class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-4 relative">
       
       <!-- Welcome Prompts (Only show if no messages) -->
       <ng-container *ngIf="(chatService.messages$ | async)?.length === 0">
@@ -47,7 +47,7 @@
       <!-- User & AI Messages -->
       <ng-container *ngFor="let msg of chatService.messages$ | async; let last = last">
         <!-- AI Message -->
-        <div *ngIf="!msg.isUser" class="flex flex-col gap-2 items-start max-w-[90%]">
+        <div *ngIf="!msg.isUser" class="message-element flex flex-col gap-2 items-start max-w-[90%] scroll-mt-16">
           <div class="bg-white border border-gray-200 text-gray-800 p-3 rounded-2xl rounded-bl-none text-sm shadow-sm whitespace-pre-wrap leading-relaxed">
             {{ msg.text }}
           </div>
@@ -91,13 +91,12 @@
         </div>
 
         <!-- User Message -->
-        <div *ngIf="msg.isUser" class="flex gap-2 items-end justify-end w-full">
+        <div *ngIf="msg.isUser" class="message-element flex gap-2 items-end justify-end w-full">
           <div class="bg-black text-white p-3 rounded-2xl rounded-br-none max-w-[85%] text-sm shadow-sm whitespace-pre-wrap">
             {{ msg.text }}
           </div>
         </div>
-        <!-- Scroll anchor -->
-        <span *ngIf="last">{{ scrollToBottom() }}</span>
+
       </ng-container>
 
       <!-- Typing Indicator -->

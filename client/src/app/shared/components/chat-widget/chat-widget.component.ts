@@ -17,14 +17,62 @@ export class ChatWidgetComponent implements OnInit {
   userInput = '';
   chatService = inject(ChatService);
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  private previousMessageCount = 0;
 
   ngOnInit() {
     this.chatService.openChat$.subscribe(open => {
       if (open) {
         this.isOpen = true;
-        setTimeout(() => this.scrollToBottom(), 100);
+        setTimeout(() => {
+          this.previousMessageCount = this.getMessagesCount();
+          this.scrollToBottom();
+        }, 100);
       }
     });
+
+    this.chatService.messages$.subscribe(messages => {
+      if (!this.isOpen) return;
+      if (messages.length === 0) return;
+      
+      if (messages.length > this.previousMessageCount) {
+        const lastMsg = messages[messages.length - 1];
+        
+        setTimeout(() => {
+           try {
+             const elements = this.scrollContainer.nativeElement.querySelectorAll('.message-element');
+             const lastEl = elements[elements.length - 1] as HTMLElement;
+             if (lastEl) {
+               if (lastMsg.isUser) {
+                 this.scrollToBottom();
+               } else {
+                 this.scrollToElementTop(lastEl);
+               }
+             }
+           } catch(e) {}
+        }, 50);
+      }
+      this.previousMessageCount = messages.length;
+    });
+
+    this.chatService.isTyping$.subscribe(isTyping => {
+      if (isTyping && this.isOpen) {
+        setTimeout(() => this.scrollToBottom(), 50);
+      }
+    });
+  }
+
+  private getMessagesCount(): number {
+    try {
+      return this.scrollContainer.nativeElement.querySelectorAll('.message-element').length;
+    } catch {
+      return 0;
+    }
+  }
+
+  scrollToElementTop(element: HTMLElement) {
+    try {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch(err) { }
   }
 
   welcomePrompts = [
@@ -39,7 +87,12 @@ export class ChatWidgetComponent implements OnInit {
   toggleChat() {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
-      setTimeout(() => this.scrollToBottom(), 100);
+      setTimeout(() => {
+        this.previousMessageCount = this.getMessagesCount();
+        this.scrollToBottom();
+      }, 100);
+    } else {
+      this.previousMessageCount = 0;
     }
   }
 
@@ -52,13 +105,16 @@ export class ChatWidgetComponent implements OnInit {
     if (this.userInput.trim()) {
       this.chatService.sendMessage(this.userInput);
       this.userInput = '';
-      setTimeout(() => this.scrollToBottom(), 100);
+      // Scroll handling is now managed by handleScroll when elements are added
     }
   }
 
   scrollToBottom(): void {
     try {
-      this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+      this.scrollContainer.nativeElement.scrollTo({
+        top: this.scrollContainer.nativeElement.scrollHeight,
+        behavior: 'smooth'
+      });
     } catch(err) { }
   }
 
