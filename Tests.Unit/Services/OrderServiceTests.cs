@@ -20,6 +20,7 @@ public class OrderServiceTests
     private readonly IFixture _fixture;
     private readonly Mock<IUnitOfWork> _mockUnitOfWork;
     private readonly Mock<ICartService> _mockCartService;
+    private readonly Mock<Microsoft.Extensions.Logging.ILogger<OrderService>> _mockLogger;
     private readonly OrderService _sut;
 
     public OrderServiceTests()
@@ -31,8 +32,9 @@ public class OrderServiceTests
 
         _mockUnitOfWork = _fixture.Freeze<Mock<IUnitOfWork>>();
         _mockCartService = _fixture.Freeze<Mock<ICartService>>();
+        _mockLogger = _fixture.Freeze<Mock<Microsoft.Extensions.Logging.ILogger<OrderService>>>();
 
-        _sut = new OrderService(_mockCartService.Object, _mockUnitOfWork.Object);
+        _sut = new OrderService(_mockCartService.Object, _mockUnitOfWork.Object, _mockLogger.Object);
     }
 
     [Fact]

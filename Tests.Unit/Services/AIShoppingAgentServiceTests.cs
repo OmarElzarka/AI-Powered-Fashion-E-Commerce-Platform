@@ -26,6 +26,7 @@ public class AIShoppingAgentServiceTests
     private readonly Mock<AgentResponseContext> _mockAgentContext;
     private readonly ShoppingAgentPlugin _plugin;
     private readonly Kernel _kernel;
+    private readonly Mock<Microsoft.Extensions.Logging.ILogger<AIShoppingAgentService>> _mockLogger;
     private readonly AIShoppingAgentService _sut;
 
     public AIShoppingAgentServiceTests()
@@ -57,13 +58,16 @@ public class AIShoppingAgentServiceTests
             _mockAgentContext.Object
         );
 
+        _mockLogger = _fixture.Freeze<Mock<Microsoft.Extensions.Logging.ILogger<AIShoppingAgentService>>>();
+
         _sut = new AIShoppingAgentService(
             _mockCartService.Object,
             _mockProductRepository.Object,
             _mockChatService.Object,
             _kernel,
             _plugin,
-            _mockAgentContext.Object
+            _mockAgentContext.Object,
+            _mockLogger.Object
         );
     }
 

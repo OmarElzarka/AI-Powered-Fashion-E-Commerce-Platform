@@ -21,6 +21,7 @@ public class PaymentServiceTests
     private readonly Mock<IUnitOfWork> _mockUnitOfWork;
     private readonly Mock<IConfiguration> _mockConfig;
     private readonly Mock<INotificationService> _mockNotificationService;
+    private readonly Mock<Microsoft.Extensions.Logging.ILogger<PaymentService>> _mockLogger;
     private readonly PaymentService _sut;
 
     public PaymentServiceTests()
@@ -36,8 +37,9 @@ public class PaymentServiceTests
         
         _mockConfig = new Mock<IConfiguration>();
         _mockConfig.Setup(x => x["StripeSettings:SecretKey"]).Returns("sk_test_123");
+        _mockLogger = _fixture.Freeze<Mock<Microsoft.Extensions.Logging.ILogger<PaymentService>>>();
 
-        _sut = new PaymentService(_mockConfig.Object, _mockCartService.Object, _mockUnitOfWork.Object, _mockNotificationService.Object);
+        _sut = new PaymentService(_mockConfig.Object, _mockCartService.Object, _mockUnitOfWork.Object, _mockNotificationService.Object, _mockLogger.Object);
     }
 
     [Fact]

@@ -41,6 +41,11 @@ public class SpecificationEvaluator<T> where T : BaseEntity
         query = spec.IncludeStrings.Aggregate(query, (current, include) =>
             current.Include(include));
 
+        if (spec.IsAsNoTracking)
+        {
+            query = query.AsNoTracking();
+        }
+
         return query;
     }
 
@@ -60,6 +65,11 @@ public class SpecificationEvaluator<T> where T : BaseEntity
         if (spec.OrderByDescending != null)
         {
             query = query.OrderByDescending(spec.OrderByDescending);
+        }
+
+        if (spec.IsAsNoTracking)
+        {
+            query = query.AsNoTracking();
         }
 
         var selectQuery = query as IQueryable<TResult>;

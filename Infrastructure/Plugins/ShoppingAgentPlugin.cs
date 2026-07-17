@@ -40,8 +40,7 @@ public class ShoppingAgentPlugin(
     public async Task<string> RecommendProductsAsync(
         [System.ComponentModel.Description("List of product IDs to display")] int[] productIds)
     {
-        var products = await productRepository.GetProductsAsync(null, null, null);
-        var toDisplay = products.Where(p => productIds.Contains(p.Id)).ToList();
+        var toDisplay = await productRepository.GetProductsByIdsAsync(productIds);
         
         foreach (var p in toDisplay)
         {

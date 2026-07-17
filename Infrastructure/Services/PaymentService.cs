@@ -177,6 +177,7 @@ public class PaymentService : IPaymentService
         if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
         {
             var intent = stripeEvent.Data.Object as PaymentIntent;
+            if (intent == null) return;
             var order = await UpdateOrderPaymentSucceeded(intent.Id, intent.Amount);
 
             if (order != null)

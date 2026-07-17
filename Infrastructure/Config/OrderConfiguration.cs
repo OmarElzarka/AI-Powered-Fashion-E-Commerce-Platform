@@ -22,5 +22,8 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             x => x.ToUniversalTime(),
             x => DateTime.SpecifyKind(x, DateTimeKind.Utc)
         );
+        
+        builder.HasIndex(x => x.BuyerEmail);
+        builder.HasIndex(x => x.PaymentIntentId);
     }
 }

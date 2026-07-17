@@ -10,12 +10,14 @@ public class OrderSpecification : BaseSpecification<Order>
         AddInclude(x => x.DeliveryMethod);
         AddInclude(x => x.OrderItems);
         AddOrderByDescending(x => x.OrderDate);
+        ApplyNoTracking();
     }
 
     public OrderSpecification(string email, int id) : base(x => x.BuyerEmail == email && x.Id == id)
     {
         AddInclude("OrderItems");
         AddInclude("DeliveryMethod");
+        ApplyNoTracking();
     }
 
     public OrderSpecification(string paymentIntentId, bool isPaymentIntent) : base(x => x.PaymentIntentId == paymentIntentId)
@@ -33,12 +35,14 @@ public class OrderSpecification : BaseSpecification<Order>
         AddInclude(x => x.DeliveryMethod);
         ApplyPaging(specParams.PageSize * (specParams.PageIndex - 1), specParams.PageSize);
         AddOrderByDescending(x => x.OrderDate);
+        ApplyNoTracking();
     }
 
     public OrderSpecification(int id) : base(x => x.Id == id)
     {
         AddInclude("OrderItems");
         AddInclude("DeliveryMethod");
+        ApplyNoTracking();
     }
 
     private static OrderStatus? ParseStatus(string status)

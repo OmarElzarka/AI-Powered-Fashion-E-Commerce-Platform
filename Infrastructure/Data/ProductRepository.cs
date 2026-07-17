@@ -31,6 +31,13 @@ public class ProductRepository(StoreContext context) : IProductRepository
         return await query.ToListAsync();
     }
 
+    public async Task<IReadOnlyList<Product>> GetProductsByIdsAsync(IEnumerable<int> ids)
+    {
+        return await context.Products
+            .Where(p => ids.Contains(p.Id))
+            .ToListAsync();
+    }
+
     public async Task<Product?> GetProductByIdAsync(int id)
     {
         return await context.Products.FindAsync(id);

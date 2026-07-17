@@ -27,6 +27,7 @@ public class ProductSpecification : BaseSpecification<Product>
             (!p.IsNewArrival.HasValue || x.IsNewArrival == p.IsNewArrival.Value))
     {
         ApplyPaging(p.PageSize * (p.PageIndex - 1), p.PageSize);
+        ApplyNoTracking();
 
         switch (p.Sort)
         {
