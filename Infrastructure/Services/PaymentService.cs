@@ -2,6 +2,7 @@ using Core.Entities;
 using Core.Interfaces;
 using Core.Extensions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Stripe;
 
 namespace Infrastructure.Services;
@@ -11,18 +12,22 @@ public class PaymentService : IPaymentService
     private readonly ICartService cartService;
     private readonly IUnitOfWork unit;
     private readonly INotificationService _notificationService;
+    private readonly ILogger<PaymentService> _logger;
 
     public PaymentService(IConfiguration config, ICartService cartService,
-        IUnitOfWork unit, INotificationService notificationService)
+        IUnitOfWork unit, INotificationService notificationService, ILogger<PaymentService> logger)
     {
         StripeConfiguration.ApiKey = config["StripeSettings:SecretKey"];
         this.cartService = cartService;
         this.unit = unit;
         _notificationService = notificationService;
+        _logger = logger;
     }
 
     public async Task<ShoppingCart?> CreateOrUpdatePaymentIntent(string cartId)
     {
+        _logger.LogInformation("Creating or updating payment intent for cart {CartId}", cartId);
+
         var cart = await cartService.GetCartAsync(cartId)
             ?? throw new Exception("Cart unavailable");
 

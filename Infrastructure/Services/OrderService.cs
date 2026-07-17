@@ -3,18 +3,30 @@ using Core.Entities;
 using Core.Entities.OrderAggregate;
 using Core.Interfaces;
 using Core.Specifications;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services;
 
-public class OrderService(ICartService cartService, IUnitOfWork unit) : IOrderService
+public class OrderService(ICartService cartService, IUnitOfWork unit, ILogger<OrderService> logger) : IOrderService
 {
     public async Task<Order?> CreateOrderAsync(string buyerEmail, int deliveryMethodId,
         string cartId, ShippingAddress shippingAddress, PaymentSummary paymentSummary,
         decimal discount)
     {
+        logger.LogInformation("Creating order for user {UserEmail} with cart {CartId}", buyerEmail, cartId);
+
         var cart = await cartService.GetCartAsync(cartId);
-        if (cart == null) return null;
-        if (cart.PaymentIntentId == null) return null;
+        if (cart == null)
+        {
+            logger.LogWarning("Order creation failed: Cart {CartId} not found", cartId);
+            return null;
+        }
+
+        if (cart.PaymentIntentId == null)
+        {
+            logger.LogWarning("Order creation failed: No PaymentIntentId on cart {CartId}", cartId);
+            return null;
+        }
 
         var spec = new OrderSpecification(cart.PaymentIntentId, true);
         var existingOrder = await unit.Repository<Order>().GetEntityWithSpec(spec);

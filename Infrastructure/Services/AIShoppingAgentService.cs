@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Core.Entities;
 using Core.Interfaces;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 
@@ -14,12 +16,15 @@ public class AIShoppingAgentService(
     IChatCompletionService chatCompletionService,
     Kernel kernel,
     Infrastructure.Plugins.ShoppingAgentPlugin shoppingAgentPlugin,
-    Infrastructure.Services.AgentResponseContext agentContext) : IAIShoppingAgentService
+    Infrastructure.Services.AgentResponseContext agentContext,
+    ILogger<AIShoppingAgentService> logger) : IAIShoppingAgentService
 {
     private readonly ChatHistory _chatHistory = new();
 
     public async Task<AgentResponse> GetAgentChatResponseAsync(List<AgentMessage> history, string cartId)
     {
+        logger.LogInformation("Processing AI shopping request for cart {CartId}", cartId);
+        
         if (!kernel.Plugins.Contains("ShoppingAgentPlugin"))
         {
             kernel.Plugins.AddFromObject(shoppingAgentPlugin, "ShoppingAgentPlugin");
@@ -53,11 +58,15 @@ public class AIShoppingAgentService(
             FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
         };
 
+        var sw = Stopwatch.StartNew();
         var response = await chatCompletionService.GetChatMessageContentAsync(
             _chatHistory, 
             executionSettings: executionSettings,
             kernel: kernel
         );
+        sw.Stop();
+        
+        logger.LogInformation("AI request completed in {ElapsedMilliseconds}ms", sw.ElapsedMilliseconds);
 
         return new AgentResponse
         {

@@ -2,10 +2,13 @@ using System;
 using System.Net;
 using System.Text.Json;
 using API.Errors;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Http;
 
 namespace API.Middleware;
 
-public class ExceptionMiddleware(IHostEnvironment env, RequestDelegate next)
+public class ExceptionMiddleware(IHostEnvironment env, RequestDelegate next, ILogger<ExceptionMiddleware> logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -15,6 +18,7 @@ public class ExceptionMiddleware(IHostEnvironment env, RequestDelegate next)
         }
         catch (Exception e)
         {
+            logger.LogError(e, "An unhandled exception occurred during the request.");
             await HandleExceptionAsync(context, e, env);
         }
     }

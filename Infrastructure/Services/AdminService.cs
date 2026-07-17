@@ -7,13 +7,14 @@ using Core.RequestHelpers;
 using Core.Specifications;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Services;
 
-public class AdminService(IUnitOfWork unit, IPaymentService paymentService, UserManager<AppUser> userManager) : IAdminService
+public class AdminService(IUnitOfWork unit, IPaymentService paymentService, UserManager<AppUser> userManager, ILogger<AdminService> logger) : IAdminService
 {
     public async Task<DashboardStatsDto> GetDashboardStatsAsync()
     {
@@ -83,11 +84,13 @@ public class AdminService(IUnitOfWork unit, IPaymentService paymentService, User
 
         if (result == "succeeded")
         {
+            logger.LogInformation("Successfully refunded order {OrderId} for amount {Total}", order.Id, order.GetTotal());
             order.Status = OrderStatus.Refunded;
             await unit.Complete();
             return order.ToDto();
         }
 
+        logger.LogWarning("Refund failed for order {OrderId} with result: {Result}", order.Id, result);
         return null;
     }
 
