@@ -27,7 +27,7 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 builder.Services.AddHttpLogging(logging =>
 {
-    logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
+    logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestPropertiesAndHeaders | Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.ResponsePropertiesAndHeaders;
 });
 // Add services to the container.
 
@@ -160,13 +160,13 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
-
 app.UseCors(x => x
     .AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()
     .WithOrigins("http://localhost:4200", "https://localhost:4200"));
+
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
