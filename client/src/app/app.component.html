@@ -4,6 +4,8 @@
   <router-outlet></router-outlet>
 </main>
 
-<app-footer></app-footer>
+@if (!isShopPage) {
+  <app-footer></app-footer>
+}
 
 <app-chat-widget></app-chat-widget>
