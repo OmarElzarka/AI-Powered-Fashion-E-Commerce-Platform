@@ -33,22 +33,22 @@ export class ChatWidgetComponent implements OnInit {
     this.chatService.messages$.subscribe(messages => {
       if (!this.isOpen) return;
       if (messages.length === 0) return;
-      
+
       if (messages.length > this.previousMessageCount) {
         const lastMsg = messages[messages.length - 1];
-        
+
         setTimeout(() => {
-           try {
-             const elements = this.scrollContainer.nativeElement.querySelectorAll('.message-element');
-             const lastEl = elements[elements.length - 1] as HTMLElement;
-             if (lastEl) {
-               if (lastMsg.isUser) {
-                 this.scrollToBottom();
-               } else {
-                 this.scrollToElementTop(lastEl);
-               }
-             }
-           } catch(e) {}
+          try {
+            const elements = this.scrollContainer.nativeElement.querySelectorAll('.message-element');
+            const lastEl = elements[elements.length - 1] as HTMLElement;
+            if (lastEl) {
+              if (lastMsg.isUser) {
+                this.scrollToBottom();
+              } else {
+                this.scrollToElementTop(lastEl);
+              }
+            }
+          } catch (e) { }
         }, 50);
       }
       this.previousMessageCount = messages.length;
@@ -72,15 +72,15 @@ export class ChatWidgetComponent implements OnInit {
   scrollToElementTop(element: HTMLElement) {
     try {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } catch(err) { }
+    } catch (err) { }
   }
 
   welcomePrompts = [
     "Create a black winter outfit for a man.",
-    "Recommend a casual summer outfit under $100.",
+    "Recommend a casual summer outfit under $5000.",
     "Show me the best formal shoes.",
-    "Find a matching watch for this outfit.",
-    "Recommend clothes based on my previous purchases.",
+    "Find a matching watch for the outfit in the cart.",
+    "Help me choose an outfit for work.",
     "Help me choose an outfit for a wedding."
   ];
 
@@ -115,7 +115,7 @@ export class ChatWidgetComponent implements OnInit {
         top: this.scrollContainer.nativeElement.scrollHeight,
         behavior: 'smooth'
       });
-    } catch(err) { }
+    } catch (err) { }
   }
 
   confirmAction(confirmation: any) {
