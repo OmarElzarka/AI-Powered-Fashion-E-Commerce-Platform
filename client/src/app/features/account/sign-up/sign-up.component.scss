@@ -16,7 +16,7 @@
 
 .auth-page {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Allows natural scrolling without top clipping */
   min-height: 100vh;
   background: var(--color-boho-bg);
   font-family: 'Inter', sans-serif;
@@ -27,7 +27,9 @@
 /* ── Left Visual Panel ────────────────────────── */
 .auth-visual {
   flex: 0 0 45%;
-  position: relative;
+  position: sticky;
+  top: 1.5rem;
+  align-self: flex-start;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -182,8 +184,7 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  overflow-y: auto;
-  max-height: calc(100vh - 3rem);
+  min-height: calc(100vh - 3rem);
   background: var(--color-boho-bg);
 }
 
@@ -259,8 +260,8 @@
 /* Zero CLS Field Group */
 .field-group {
   position: relative;
-  padding-bottom: 20px; /* Reserve space for error */
-  margin-bottom: 0.25rem;
+  padding-bottom: 16px; /* Reduced to pull error closer */
+  margin-bottom: 0.5rem;
 
   &.full {
     width: 100%;
@@ -343,6 +344,11 @@ mat-form-field {
 
   ::ng-deep .mat-mdc-form-field-icon-suffix {
     color: var(--color-boho-text-muted);
+  }
+
+  /* Completely remove the invisible bottom spacing built into Material fields */
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
   }
 }
 
@@ -558,6 +564,8 @@ mat-form-field {
 
   .auth-visual {
     flex: none;
+    position: relative;
+    top: 0;
     min-height: 380px;
     height: auto;
     border-radius: 0;
