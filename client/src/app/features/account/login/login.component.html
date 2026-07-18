@@ -1,8 +1,7 @@
 <div class="auth-page">
   <!-- Left Visual Panel -->
   <div class="auth-visual">
-    <div class="visual-content">
-
+    <div class="visual-content glass-card">
       <a routerLink="/" class="brand-logo">STYLÉ</a>
       <h2 class="visual-title">Welcome <span class="gold">Back</span></h2>
       <p class="visual-desc">Continue your style journey. Your curated collections and personalized recommendations are waiting.</p>
@@ -17,13 +16,15 @@
         <p>Access your premium account</p>
       </div>
 
-      <!-- Inline Error -->
-      @if (loginError()) {
-        <div class="login-error">
-          <mat-icon>error_outline</mat-icon>
-          <span>{{ loginError() }}</span>
-        </div>
-      }
+      <!-- Inline Error with Fixed Container to prevent layout shift -->
+      <div class="error-container">
+        @if (loginError()) {
+          <div class="login-error">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ loginError() }}</span>
+          </div>
+        }
+      </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="field-group" [ngClass]="{'invalid': loginForm.get('email')?.touched && loginForm.get('email')?.invalid}">

@@ -1,7 +1,9 @@
 <div class="auth-page">
   <!-- Left Panel: Visual / Branding -->
   <div class="auth-visual">
-    <div class="visual-content">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="visual-content glass-card">
       <a routerLink="/" class="brand-logo">STYLÉ</a>
       <h2 class="visual-title">Join the <span class="gold">Fashion</span> Revolution</h2>
       <p class="visual-desc">AI-powered recommendations. Curated collections. Personalized style — all in one place.</p>
@@ -31,17 +33,19 @@
         <p>Start your premium fashion journey</p>
       </div>
 
-      <!-- Server errors -->
-      @if (serverErrors().length > 0) {
-        <div class="server-errors">
-          @for (err of serverErrors(); track err) {
-            <div class="error-item">
-              <mat-icon>error_outline</mat-icon>
-              <span>{{ err }}</span>
-            </div>
-          }
-        </div>
-      }
+      <!-- Server errors (Fixed container for Zero CLS) -->
+      <div class="error-container">
+        @if (serverErrors().length > 0) {
+          <div class="server-errors">
+            @for (err of serverErrors(); track err) {
+              <div class="error-item">
+                <mat-icon>error_outline</mat-icon>
+                <span>{{ err }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
 
       <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
         <!-- Name Row -->
