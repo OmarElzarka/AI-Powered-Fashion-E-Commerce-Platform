@@ -95,18 +95,25 @@ public class AIShoppingAgentService(
     {
         if (request.Action == "AddToCart")
         {
-            var productId = ((System.Text.Json.JsonElement)request.Parameters["productId"]).GetInt32();
-            var quantity = ((System.Text.Json.JsonElement)request.Parameters["quantity"]).GetInt32();
+            var productIdsElement = (System.Text.Json.JsonElement)request.Parameters["productIds"];
+            var quantitiesElement = (System.Text.Json.JsonElement)request.Parameters["quantities"];
             
-            var product = await productRepository.GetProductByIdAsync(productId);
-            if (product == null) return null;
-
             if (string.IsNullOrWhiteSpace(cartId)) cartId = Guid.NewGuid().ToString();
-
             var cart = await cartService.GetCartAsync(cartId) ?? new ShoppingCart { Id = cartId };
-            var existingItem = cart.Items.Find(i => i.ProductId == productId);
-            if (existingItem != null) existingItem.Quantity += quantity;
-            else cart.Items.Add(new CartItem { ProductId = product.Id, ProductName = product.Name, Price = product.Price, PictureUrl = product.ImageUrl, Brand = product.Brand, Type = product.Category, Quantity = quantity });
+
+            int length = productIdsElement.GetArrayLength();
+            for (int i = 0; i < length; i++)
+            {
+                int productId = productIdsElement[i].GetInt32();
+                int quantity = quantitiesElement[i].GetInt32();
+
+                var product = await productRepository.GetProductByIdAsync(productId);
+                if (product == null) continue;
+
+                var existingItem = cart.Items.Find(item => item.ProductId == productId);
+                if (existingItem != null) existingItem.Quantity += quantity;
+                else cart.Items.Add(new CartItem { ProductId = product.Id, ProductName = product.Name, Price = product.Price, PictureUrl = product.ImageUrl, Brand = product.Brand, Type = product.Category, Quantity = quantity });
+            }
             
             return await cartService.SetCartAsync(cart);
         }
@@ -114,20 +121,26 @@ public class AIShoppingAgentService(
         {
             if (string.IsNullOrWhiteSpace(cartId)) return null;
 
-            var productId = ((System.Text.Json.JsonElement)request.Parameters["productId"]).GetInt32();
-            var quantity = ((System.Text.Json.JsonElement)request.Parameters["quantity"]).GetInt32();
+            var productIdsElement = (System.Text.Json.JsonElement)request.Parameters["productIds"];
+            var quantitiesElement = (System.Text.Json.JsonElement)request.Parameters["quantities"];
 
             var cart = await cartService.GetCartAsync(cartId);
             if (cart == null) return null;
 
-            var item = cart.Items.Find(i => i.ProductId == productId);
-            if (item != null)
+            int length = productIdsElement.GetArrayLength();
+            for (int i = 0; i < length; i++)
             {
-                if (item.Quantity <= quantity) cart.Items.Remove(item);
-                else item.Quantity -= quantity;
-                return await cartService.SetCartAsync(cart);
+                int productId = productIdsElement[i].GetInt32();
+                int quantity = quantitiesElement[i].GetInt32();
+
+                var item = cart.Items.Find(x => x.ProductId == productId);
+                if (item != null)
+                {
+                    if (item.Quantity <= quantity) cart.Items.Remove(item);
+                    else item.Quantity -= quantity;
+                }
             }
-            return cart;
+            return await cartService.SetCartAsync(cart);
         }
 
         return null;

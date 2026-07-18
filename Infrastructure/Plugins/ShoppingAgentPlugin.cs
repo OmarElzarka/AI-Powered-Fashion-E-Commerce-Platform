@@ -70,47 +70,48 @@ public class ShoppingAgentPlugin(
     }
 
     [KernelFunction("AddToCart")]
-    [System.ComponentModel.Description("Adds a specific product to the user's shopping cart. This action requires user confirmation.")]
+    [System.ComponentModel.Description("Adds products to the user's shopping cart. Can add one or multiple items at once. This action requires user confirmation.")]
     public async Task<string> AddToCartAsync(
-        [System.ComponentModel.Description("The ID of the product to add")] int productId,
-        [System.ComponentModel.Description("The quantity to add (usually 1)")] int quantity,
+        [System.ComponentModel.Description("List of product IDs to add")] int[] productIds,
+        [System.ComponentModel.Description("List of quantities corresponding to each product ID")] int[] quantities,
         [System.ComponentModel.Description("The unique identifier of the user's cart")] string cartId)
     {
-        var product = await productRepository.GetProductByIdAsync(productId);
-        if (product == null) return $"Failed to add to cart: Product with ID {productId} not found.";
-
+        if (productIds == null || productIds.Length == 0) return "No products specified to add.";
+        
         agentContext.PendingConfirmation = new ActionConfirmation
         {
             Action = "AddToCart",
             ToolCallId = "pending",
             Parameters = new Dictionary<string, object>
             {
-                { "productId", productId },
-                { "quantity", quantity }
+                { "productIds", productIds },
+                { "quantities", quantities }
             }
         };
 
-        return $"Action paused. Tell the user you are waiting for them to click 'Yes' to add {quantity} of '{product.Name}' to their cart.";
+        return $"Action paused. Tell the user you are waiting for them to click 'Yes' to add {productIds.Length} item(s) to their cart.";
     }
 
     [KernelFunction("RemoveFromCart")]
-    [System.ComponentModel.Description("Removes a specific product from the user's shopping cart or reduces its quantity. This action requires user confirmation.")]
+    [System.ComponentModel.Description("Removes products from the user's shopping cart or reduces their quantities. Can remove multiple items at once. This action requires user confirmation.")]
     public async Task<string> RemoveFromCartAsync(
-        [System.ComponentModel.Description("The ID of the product to remove")] int productId,
-        [System.ComponentModel.Description("The quantity to remove")] int quantity,
+        [System.ComponentModel.Description("List of product IDs to remove")] int[] productIds,
+        [System.ComponentModel.Description("List of quantities corresponding to each product ID to remove")] int[] quantities,
         [System.ComponentModel.Description("The unique identifier of the user's cart")] string cartId)
     {
+        if (productIds == null || productIds.Length == 0) return "No products specified to remove.";
+
         agentContext.PendingConfirmation = new ActionConfirmation
         {
             Action = "RemoveFromCart",
             ToolCallId = "pending",
             Parameters = new Dictionary<string, object>
             {
-                { "productId", productId },
-                { "quantity", quantity }
+                { "productIds", productIds },
+                { "quantities", quantities }
             }
         };
 
-        return $"Action paused. Tell the user you are waiting for them to click 'Yes' to remove product ID {productId} from their cart.";
+        return $"Action paused. Tell the user you are waiting for them to click 'Yes' to remove {productIds.Length} item(s) from their cart.";
     }
 }

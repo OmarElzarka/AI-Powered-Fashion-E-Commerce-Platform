@@ -84,8 +84,8 @@ public class AIShoppingAgentServiceTests
 
         var parameters = new Dictionary<string, object>
         {
-            { "productId", JsonSerializer.SerializeToElement(product.Id) },
-            { "quantity", JsonSerializer.SerializeToElement(2) }
+            { "productIds", JsonSerializer.SerializeToElement(new[] { product.Id }) },
+            { "quantities", JsonSerializer.SerializeToElement(new[] { 2 }) }
         };
 
         var confirmation = new ActionConfirmation
@@ -116,8 +116,8 @@ public class AIShoppingAgentServiceTests
 
         var parameters = new Dictionary<string, object>
         {
-            { "productId", JsonSerializer.SerializeToElement(1) },
-            { "quantity", JsonSerializer.SerializeToElement(2) }
+            { "productIds", JsonSerializer.SerializeToElement(new[] { 1 }) },
+            { "quantities", JsonSerializer.SerializeToElement(new[] { 2 }) }
         };
 
         var confirmation = new ActionConfirmation
