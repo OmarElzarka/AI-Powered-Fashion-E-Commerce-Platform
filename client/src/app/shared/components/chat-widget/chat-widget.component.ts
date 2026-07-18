@@ -130,7 +130,7 @@ export class ChatWidgetComponent implements OnInit {
     this.chatService.confirmAction({
       action: 'AddToCart',
       toolCallId: 'ui-direct',
-      parameters: { productId, quantity: 1 }
+      parameters: { productIds: [productId], quantities: [1] }
     });
   }
 

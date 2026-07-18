@@ -37,6 +37,7 @@ public class AIShoppingAgentService(
             "Call the SearchCatalog tool to find each matching piece. In your response, explicitly explain WHY these pieces work well together in terms of style, color, season, and occasion.\n\n" +
             "2. PRODUCT SEARCHES (e.g., 'black t-shirts', 'shoes', 'dresses'): You MUST NOT build an outfit. Instead, find 5-10 items of that specific requested category using SearchCatalog and present them so the user can browse.\n\n" +
             "IMPORTANT INSTRUCTIONS:\n" +
+            "- GENDER CLARIFICATION: If the user asks for an outfit, styling advice, or a complete look, but DOES NOT specify whether it is for a man or a woman, you MUST ask a single, polite clarification question (e.g., 'Is the outfit for a man or a woman?') BEFORE making any recommendation or calling tools. If the gender is already known or can be confidently inferred from the request, proceed immediately.\n" +
             "- Always format your responses cleanly using proper headings, bold text, and bullet points.\n" +
             "- To recommend products, you MUST call the `RecommendProducts` tool with the product IDs so they appear visually to the user. DO NOT just write their names without calling the tool.\n" +
             "- When modifying the cart, use the provided AddToCart/RemoveFromCart tools. The tools will pause execution and ask the user for confirmation.\n" +
