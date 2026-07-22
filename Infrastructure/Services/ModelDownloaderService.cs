@@ -40,7 +40,13 @@ public class ModelDownloaderService : IModelDownloaderService
     {
         if (File.Exists(destinationPath))
         {
-            return;
+            var fileInfo = new FileInfo(destinationPath);
+            if (fileInfo.Length > 1024 * 1024) // At least 1MB
+            {
+                return;
+            }
+            _logger.LogWarning("{FileName} exists but is too small ({Size} bytes). Deleting and redownloading...", Path.GetFileName(destinationPath), fileInfo.Length);
+            File.Delete(destinationPath);
         }
 
         _logger.LogInformation("Downloading {FileName} from {Url}...", Path.GetFileName(destinationPath), url);
