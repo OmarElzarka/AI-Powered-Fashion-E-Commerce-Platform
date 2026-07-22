@@ -18,12 +18,18 @@ using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((context, services, configuration) => configuration
-    .ReadFrom.Configuration(context.Configuration)
-    .ReadFrom.Services(services)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("logs/api-log-.txt", rollingInterval: RollingInterval.Day));
+builder.Host.UseSerilog((context, services, configuration) => {
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console();
+    
+    if (context.HostingEnvironment.IsDevelopment())
+    {
+        configuration.WriteTo.File("logs/api-log-.txt", rollingInterval: RollingInterval.Day);
+    }
+});
 
 builder.Services.AddHttpLogging(logging =>
 {
@@ -74,6 +80,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IBlobService, BlobService>();
 builder.Services.AddScoped<INotificationService, API.SignalR.NotificationService>();
 builder.Services.AddHttpClient<IModelDownloaderService, ModelDownloaderService>();
 builder.Services.AddSingleton<ITextEmbeddingService>(sp => 
@@ -141,6 +148,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddSignalR();
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -160,11 +168,12 @@ else
     app.UseHsts();
 }
 
+var corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>() ?? new[] { "http://localhost:4200", "https://localhost:4200" };
 app.UseCors(x => x
     .AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()
-    .WithOrigins("http://localhost:4200", "https://localhost:4200"));
+    .WithOrigins(corsOrigins));
 
 app.UseHttpsRedirection();
 
@@ -180,6 +189,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.MapControllers();
 app.MapGroup("api").MapIdentityApi<AppUser>();
 app.MapHub<NotificationHub>("/hub/notifications");
+app.MapHealthChecks("/api/health");
 
 try
 {
@@ -194,10 +204,12 @@ try
     await modelDownloader.EnsureModelsDownloadedAsync(Path.Combine(builder.Environment.ContentRootPath, "assets", "models"));
 
     var dataImportService = services.GetRequiredService<IDataImportService>();
+    var blobService = services.GetRequiredService<IBlobService>();
+    var config = services.GetRequiredService<IConfiguration>();
 
     await context.Database.MigrateAsync();
     await StoreContextSeed.SeedAsync(context, userManager, dataImportService, cacheService, logger,
-        Path.Combine(builder.Environment.ContentRootPath, "Data", "SeedData"));
+        Path.Combine(builder.Environment.ContentRootPath, "Data", "SeedData"), blobService, config);
 }
 catch (Exception e)
 {

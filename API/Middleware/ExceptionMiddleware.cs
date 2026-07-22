@@ -30,7 +30,7 @@ public class ExceptionMiddleware(IHostEnvironment env, RequestDelegate next, ILo
 
         var response = env.IsDevelopment()
             ? new ApiErrorResponse(context.Response.StatusCode, e.Message, e.StackTrace)
-            : new ApiErrorResponse(context.Response.StatusCode, e.Message, "Internal Server error");
+            : new ApiErrorResponse(context.Response.StatusCode, "Internal Server error", "Internal Server error");
 
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
