@@ -8,6 +8,8 @@ on:
       - 'Core/**'
       - 'Infrastructure/**'
       - 'Dockerfile'
+      - '.github/workflows/**'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
