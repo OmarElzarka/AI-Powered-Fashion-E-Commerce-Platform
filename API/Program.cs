@@ -180,11 +180,15 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseStaticFiles(new StaticFileOptions
+var imagesPath = Path.Combine(builder.Environment.ContentRootPath, "Data", "SeedData", "images");
+if (Directory.Exists(imagesPath))
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "Data", "SeedData", "images")),
-    RequestPath = "/images"
-});
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(imagesPath),
+        RequestPath = "/images"
+    });
+}
 
 app.MapControllers();
 app.MapGroup("api").MapIdentityApi<AppUser>();
