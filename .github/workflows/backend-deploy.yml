@@ -24,6 +24,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Downcase IMAGE_NAME
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}-backend" >> ${GITHUB_ENV}
+
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
